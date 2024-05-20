@@ -96,6 +96,10 @@ Token *new_token(TokenKind kind, Token *cur, char *str, int len) {
   return tok;
 }
 
+bool startwith(char *src, char *target) {
+  return memcmp(src, target, strlen(target)) == 0;
+}
+
 Token *tokenize(char *p) {
   Token head;
   head.next = NULL;
@@ -107,8 +111,15 @@ Token *tokenize(char *p) {
       continue;
     }
 
+    if (startwith(p, "==") || startwith(p, "!=") || startwith(p, "<=") ||
+        startwith(p, ">=")) {
+      cur = new_token(TK_RESERVED, cur, p, 2);
+      p += 2;
+      continue;
+    }
+
     if (*p == '+' || *p == '-' || *p == '*' || *p == '/' || *p == '(' ||
-        *p == ')') {
+        *p == ')' || *p == '<' || *p == '>') {
       cur = new_token(TK_RESERVED, cur, p++, 1);
       continue;
     }
