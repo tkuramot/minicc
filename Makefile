@@ -1,12 +1,20 @@
-CFLAGS=-std=c11 -g -static
+NAME:=9cc
+CFLAGS:=-std=c11 -g -static
+SRCS:=$(wildcard *.c)
+OBJS:=$(SRCS:.c=.o)
 
-9cc: 9cc.c
+all: $(NAME)
 
-test: 9cc
+$(NAME): $(OBJS)
+	$(CC) -o $@ $(OBJS) $(LDFLAGS)
+
+$(OBJS): 9cc.h
+
+test: $(NAME)
 	./test.sh
 
 clean:
-	$(RM) -f 9cc *.o *.~ tmp*
+	$(RM) -f $(NAME) *.o *.~ tmp*
 
 ctr:
 	docker build --platform linux/amd64 -t compilerbook https://www.sigbus.info/compilerbook/Dockerfile
