@@ -17,6 +17,12 @@ typedef enum {
   ND_MUL,
   ND_DIV,
   ND_NUM,
+  ND_EQ,
+  ND_NEQ,
+  ND_LESS,
+  ND_LESSEQ,
+  ND_GREATER,
+  ND_GREATEREQ,
 } NodeKind;
 
 typedef struct Token Token;
@@ -39,6 +45,9 @@ struct Node {
 };
 
 Node *expr();
+Node *equality();
+Node *relational();
+Node *add();
 Node *mul();
 Node *unary();
 Node *primary();
@@ -154,7 +163,40 @@ Node *new_node_num(int val) {
   return node;
 }
 
-Node *expr() {
+Node *expr() { return equality(); }
+
+Node *equality() {
+  Node *node = relational();
+
+  for (;;) {
+    if (consume("==")) {
+      node = new_node(ND_EQ, node, relational());
+    } else if (consume("!=")) {
+      node = new_node(ND_NEQ, node, relational());
+    } else {
+      return node;
+    }
+  }
+}
+
+Node *relational() {
+  Node *node = add();
+
+  for (;;) {
+    if (consume("<="))
+      node = new_node(ND_LESSEQ, node, add());
+    else if (consume(">="))
+      node = new_node(ND_GREATEREQ, node, add());
+    else if (consume("<"))
+      node = new_node(ND_LESS, node, add());
+    else if (consume(">"))
+      node = new_node(ND_GREATER, node, add());
+    else
+      return node;
+  }
+}
+
+Node *add() {
   Node *node = mul();
 
   for (;;) {
