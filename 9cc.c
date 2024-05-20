@@ -18,11 +18,9 @@ typedef enum {
   ND_DIV,
   ND_NUM,
   ND_EQ,
-  ND_NEQ,
-  ND_LESS,
-  ND_LESSEQ,
-  ND_GREATER,
-  ND_GREATEREQ,
+  ND_NE,
+  ND_LT,
+  ND_LE,
 } NodeKind;
 
 typedef struct Token Token;
@@ -172,7 +170,7 @@ Node *equality() {
     if (consume("==")) {
       node = new_node(ND_EQ, node, relational());
     } else if (consume("!=")) {
-      node = new_node(ND_NEQ, node, relational());
+      node = new_node(ND_NE, node, relational());
     } else {
       return node;
     }
@@ -184,13 +182,13 @@ Node *relational() {
 
   for (;;) {
     if (consume("<="))
-      node = new_node(ND_LESSEQ, node, add());
+      node = new_node(ND_LE, node, add());
     else if (consume(">="))
-      node = new_node(ND_GREATEREQ, node, add());
+      node = new_node(ND_LE, add(), node);
     else if (consume("<"))
-      node = new_node(ND_LESS, node, add());
+      node = new_node(ND_LT, node, add());
     else if (consume(">"))
-      node = new_node(ND_GREATER, node, add());
+      node = new_node(ND_LT, add(), node);
     else
       return node;
   }
@@ -268,6 +266,26 @@ void gen(Node *node) {
   case ND_DIV:
     printf("  cqo\n");
     printf("  idiv rdi\n");
+    break;
+	case ND_EQ:
+		printf("  cmp rax, rdi\n");
+		printf("  sete al\n");
+		printf("  movzb rax, al\n");
+    break;
+	case ND_NE:
+		printf("  cmp rax, rdi\n");
+		printf("  setne al\n");
+		printf("  movzb rax, al\n");
+    break;
+	case ND_LT:
+		printf("  cmp rax, rdi\n");
+		printf("  setl al\n");
+		printf("  movzb rax, al\n");
+    break;
+	case ND_LE:
+		printf("  cmp rax, rdi\n");
+		printf("  setle al\n");
+		printf("  movzb rax, al\n");
     break;
   default:
     break;
