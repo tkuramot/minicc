@@ -2,7 +2,8 @@
 #define NINECC_H
 
 typedef enum {
-  TK_RESERVED,
+  TK_RESERVED, // 記号
+	TK_IDENT,    // 識別子
   TK_NUM,
   TK_EOF,
 } TokenKind;
