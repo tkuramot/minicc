@@ -13,11 +13,13 @@ typedef enum {
   ND_SUB,
   ND_MUL,
   ND_DIV,
-  ND_NUM,
   ND_EQ,
   ND_NE,
   ND_LT,
   ND_LE,
+	ND_ASSIGN,
+	ND_LVAR,
+  ND_NUM,
 } NodeKind;
 
 typedef struct Token Token;
@@ -37,13 +39,15 @@ struct Node {
   Node *lhs;
   Node *rhs;
   int val;
+	int offset;
 };
 
 extern char *user_input;
 extern Token *token;
+extern Node *code[100];
 
 Token *tokenize(char *p);
-Node *expr();
+void program();
 void gen(Node *node);
 
 #endif

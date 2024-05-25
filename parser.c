@@ -9,6 +9,9 @@
 
 char *user_input;
 Token *token;
+Node *code[100];
+
+static Node *expr();
 
 void error_at(char *loc, char *fmt, ...) {
   va_list ap;
@@ -32,10 +35,12 @@ bool consume(char *op) {
   return true;
 }
 
+Token *consume_ident() { return token->kind == TK_IDENT ? token++ : NULL; }
+
 void expect(char *op) {
   if (token->kind != TK_RESERVED || token->len != strlen(op) ||
       memcmp(token->str, op, token->len)) {
-    error_at(token->str, "\"%c\"ではありません", op);
+    error_at(token->str, "\"%s\"ではありません", op);
   }
   token = token->next;
 }
@@ -83,15 +88,15 @@ Token *tokenize(char *p) {
     }
 
     if (*p == '+' || *p == '-' || *p == '*' || *p == '/' || *p == '(' ||
-        *p == ')' || *p == '<' || *p == '>') {
+        *p == ')' || *p == '<' || *p == '>' || *p == '=' || *p == ';') {
       cur = new_token(TK_RESERVED, cur, p++, 1);
       continue;
     }
 
-		if ('a' <= *p && *p <= 'z') {
-			cur = new_token(TK_IDENT, cur, p, 1);
-			continue;
-		}
+    if ('a' <= *p && *p <= 'z') {
+      cur = new_token(TK_IDENT, cur, p++, 1);
+      continue;
+    }
 
     if (isdigit(*p)) {
       cur = new_token(TK_NUM, cur, p, 0);
@@ -107,6 +112,7 @@ Token *tokenize(char *p) {
   cur = new_token(TK_EOF, cur, p, 0);
   return head.next;
 }
+
 Node *new_node(NodeKind kind, Node *lhs, Node *rhs) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = kind;
@@ -126,6 +132,13 @@ Node *primary() {
   if (consume("(")) {
     Node *node = expr();
     expect(")");
+    return node;
+  }
+
+  Token *tok = consume_ident();
+  if (tok) {
+    Node *node = new_node(ND_LVAR, NULL, NULL);
+    node->offset = (token->str[0] - 'a' + 1) * 8;
     return node;
   }
 
@@ -201,5 +214,30 @@ Node *equality() {
   }
 }
 
-Node *expr() { return equality(); }
+Node *assign() {
+  Node *node = equality();
 
+  for (;;) {
+    if (consume("=")) {
+      node = new_node(ND_ASSIGN, node, assign());
+    } else {
+      return node;
+    }
+  }
+}
+
+Node *expr() { return assign(); }
+
+Node *stmt() {
+  Node *node = expr();
+  expect(";");
+  return node;
+}
+
+void program() {
+  int i = 0;
+  while (!at_eof()) {
+    code[i++] = stmt();
+  }
+  code[i] = NULL;
+}

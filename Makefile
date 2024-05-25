@@ -1,14 +1,15 @@
 NAME:=9cc
-CFLAGS:=-std=c11 -g -static
+CFLAGS:=-std=c11 -g -static # -fsanitize=address
 SRCS:=$(wildcard *.c)
 OBJS:=$(SRCS:.c=.o)
 
 all: $(NAME)
 
 $(NAME): $(OBJS)
-	$(CC) -o $@ $(OBJS) $(LDFLAGS)
+	$(CC) -o $@ $(OBJS) $(CFLAGS) $(LDFLAGS)
 
-$(OBJS): 9cc.h
+%.o: %.c 9cc.h
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ -c $<
 
 test: $(NAME)
 	./test.sh
