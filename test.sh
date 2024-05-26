@@ -54,6 +54,9 @@ assert 1 'a=1;'
 assert 1 'a=1==1;'
 assert 0 'a=1==0;'
 assert 2 'a=b=c=2;'
+assert 4 'foo=4;bar=4;'
+assert 8 'foo=4;bar=foo+4;'
+assert 12 'f=4;foo=4;bar=f+foo+4;'
 
 # multiple statements
 assert 4 '3+3;a=4;'
