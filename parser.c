@@ -7,9 +7,19 @@
 
 #include "9cc.h"
 
+typedef struct LVar LVar;
+
+struct LVar {
+  LVar *next;
+  char *name;
+  int len;
+  int offset;
+};
+
 char *user_input;
 Token *token;
 Node *code[100];
+LVar *locals;
 
 static Node *expr();
 
@@ -109,8 +119,12 @@ Token *tokenize(char *p) {
       continue;
     }
 
-    if ('a' <= *p && *p <= 'z') {
-      cur = new_token(TK_IDENT, cur, p++, 1);
+    if (isalpha(*p)) {
+      cur = new_token(TK_IDENT, cur, p, 0);
+      char *q = p;
+      while (isalpha(*p))
+        p++;
+      cur->len = q - p;
       continue;
     }
 

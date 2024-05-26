@@ -23,7 +23,6 @@ typedef enum {
 } NodeKind;
 
 typedef struct Token Token;
-
 typedef struct Node Node;
 
 struct Token {
