@@ -13,6 +13,15 @@ Node *code[100];
 
 static Node *expr();
 
+void error(char *fmt, ...) {
+  va_list ap;
+  va_start(ap, fmt);
+
+  vfprintf(stderr, fmt, ap);
+  fprintf(stderr, "\n");
+  exit(1);
+}
+
 void error_at(char *loc, char *fmt, ...) {
   va_list ap;
   va_start(ap, fmt);
@@ -35,7 +44,14 @@ bool consume(char *op) {
   return true;
 }
 
-Token *consume_ident() { return token->kind == TK_IDENT ? token++ : NULL; }
+Token *consume_ident() {
+  if (token->kind != TK_IDENT) {
+    return NULL;
+  }
+  Token *tok = token;
+  token = token->next;
+  return tok;
+}
 
 void expect(char *op) {
   if (token->kind != TK_RESERVED || token->len != strlen(op) ||
@@ -138,7 +154,7 @@ Node *primary() {
   Token *tok = consume_ident();
   if (tok) {
     Node *node = new_node(ND_LVAR, NULL, NULL);
-    node->offset = (token->str[0] - 'a' + 1) * 8;
+    node->offset = (tok->str[0] - 'a' + 1) * 8;
     return node;
   }
 

@@ -1,5 +1,6 @@
 NAME:=9cc
-CFLAGS:=-std=c11 -g -static # -fsanitize=address
+CFLAGS:=-std=c11 -g -static
+# CFLAGS:=-std=c11 -g -fsanitize=address
 SRCS:=$(wildcard *.c)
 OBJS:=$(SRCS:.c=.o)
 
@@ -17,6 +18,8 @@ test: $(NAME)
 clean:
 	$(RM) -f $(NAME) *.o *.~ tmp*
 
+re: clean all
+
 ctr:
 	docker build --platform linux/amd64 -t compilerbook https://www.sigbus.info/compilerbook/Dockerfile
 
@@ -25,6 +28,9 @@ ctr/compile: ctr
 
 ctr/test: ctr ctr/compile
 	docker run --rm -v $(PWD):/9cc -w /9cc --platform linux/amd64 compilerbook make test
+
+ctr/in: ctr
+	docker run --rm -it -v $(PWD):/9cc -w /9cc --platform linux/amd64 compilerbook /bin/bash
 
 .PHONY: test clean
 

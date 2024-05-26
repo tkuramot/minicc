@@ -49,4 +49,8 @@ assert 1 '1>=0;'
 assert 0 '1<=0;'
 assert 1 '1==1>=0;'
 
+# local variables
+assert 1 'a=1;'
+assert 3 'a=3;'
+
 echo OK
