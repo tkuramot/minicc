@@ -124,7 +124,7 @@ Token *tokenize(char *p) {
       char *q = p;
       while (isalpha(*p))
         p++;
-      cur->len = q - p;
+      cur->len = p - q;
       continue;
     }
 
@@ -141,6 +141,15 @@ Token *tokenize(char *p) {
 
   cur = new_token(TK_EOF, cur, p, 0);
   return head.next;
+}
+
+LVar *find_lvar(Token *tok) {
+  for (LVar *var = locals; var; var = var->next) {
+    if (var->len == tok->len && !memcmp(var->name, tok->str, var->len)) {
+      return var;
+    }
+  }
+  return NULL;
 }
 
 Node *new_node(NodeKind kind, Node *lhs, Node *rhs) {
@@ -168,7 +177,19 @@ Node *primary() {
   Token *tok = consume_ident();
   if (tok) {
     Node *node = new_node(ND_LVAR, NULL, NULL);
-    node->offset = (tok->str[0] - 'a' + 1) * 8;
+
+    LVar *lvar = find_lvar(tok);
+    if (lvar) {
+      node->offset = lvar->offset;
+    } else {
+      lvar = calloc(1, sizeof(LVar));
+      lvar->next = locals;
+      lvar->name = tok->str;
+      lvar->len = tok->len;
+      lvar->offset = locals ? locals->offset + 8 : 8;
+      node->offset = lvar->offset;
+      locals = lvar;
+    }
     return node;
   }
 
