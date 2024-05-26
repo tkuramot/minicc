@@ -56,14 +56,14 @@ Token *consume_ident() {
 void expect(char *op) {
   if (token->kind != TK_RESERVED || token->len != strlen(op) ||
       memcmp(token->str, op, token->len)) {
-    error_at(token->str, "\"%s\"ではありません", op);
+    error_at(token->str, "\"%s\" expected", op);
   }
   token = token->next;
 }
 
 int expect_number() {
   if (token->kind != TK_NUM) {
-    error_at(token->str, "数ではありません");
+    error_at(token->str, "is not a number");
   }
   int val = token->val;
   token = token->next;
@@ -122,7 +122,7 @@ Token *tokenize(char *p) {
       continue;
     }
 
-    error_at(p, "トークナイズできません");
+    error_at(p, "failed to tokenize");
   }
 
   cur = new_token(TK_EOF, cur, p, 0);

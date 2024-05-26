@@ -4,9 +4,15 @@
 
 void gen_lval(Node *node) {
   if (node->kind != ND_LVAR) {
-    error("代入の左辺値が変数ではありません");
+    error("left value is not a variable");
   }
 
+  /*
+   * access the local variable by the offset from the base pointer
+   * copy the base pointer to the rdi register
+   * subtract the offset from the rdi register
+   * push the rdi register to the stack
+   */
   printf("  mov rax, rbp\n");
   printf("  sub rax, %d\n", node->offset);
   printf("  push rax\n");
@@ -20,6 +26,11 @@ void gen(Node *node) {
   case ND_LVAR:
     gen_lval(node);
 
+    /*
+     * get the local variable value from the stack
+     * pop from the stack to the rax register
+     * dereference the rax register and push the value to the stack
+     */
     printf("  pop rax\n");
     printf("  mov rax, [rax]\n");
     printf("  push rax\n");
@@ -28,6 +39,10 @@ void gen(Node *node) {
     gen_lval(node->lhs);
     gen(node->rhs);
 
+    /*
+     * pop the value and the address from the stack
+     * copy the value to the address
+     */
     printf("  pop rdi\n");
     printf("  pop rax\n");
     printf("  mov [rax], rdi\n");

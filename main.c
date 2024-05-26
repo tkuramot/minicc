@@ -10,25 +10,24 @@ int main(int argc, char **argv) {
 
   user_input = argv[1];
   token = tokenize(argv[1]);
-	program();
+  program();
 
   printf(".intel_syntax noprefix\n");
   printf(".global main\n");
   printf("main:\n");
 
-	printf("  push rbp\n");
-	printf("  mov rbp, rsp\n");
-	printf("  sub rsp, 208\n");
+  printf("  push rbp\n");     // store the base pointer to the stack
+  printf("  mov rbp, rsp\n"); // set the base pointer to the stack pointer
+  printf("  sub rsp, 208\n"); // allocate 208 bytes for local variables
 
-	for (int i = 0; code[i]; ++i) {
-		gen(code[i]);
+  for (int i = 0; code[i]; ++i) {
+    gen(code[i]);
 
-		printf("  pop rax\n");
-	}
+    printf("  pop rax\n");
+  }
 
-  printf("  mov rsp, rbp\n");
-  printf("  pop rbp\n");
-  printf("  ret\n");
+  printf("  mov rsp, rbp\n"); // reset the stack pointer
+  printf("  pop rbp\n");      // restore the base pointer
+  printf("  ret\n");          // return from the function
   return 0;
 }
-
