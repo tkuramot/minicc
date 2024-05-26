@@ -23,13 +23,13 @@ re: clean all
 ctr:
 	docker build --platform linux/amd64 -t compilerbook https://www.sigbus.info/compilerbook/Dockerfile
 
-ctr/compile: ctr
+ctr/compile:
 	docker run --rm -v $(PWD):/9cc -w /9cc --platform linux/amd64 compilerbook make
 
-ctr/test: ctr ctr/compile
+ctr/test: ctr/compile
 	docker run --rm -v $(PWD):/9cc -w /9cc --platform linux/amd64 compilerbook make test
 
-ctr/in: ctr
+ctr/in:
 	docker run --rm -it -v $(PWD):/9cc -w /9cc --platform linux/amd64 compilerbook /bin/bash
 
 .PHONY: test clean
