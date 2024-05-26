@@ -55,4 +55,7 @@ assert 1 'a=1==1;'
 assert 0 'a=1==0;'
 assert 2 'a=b=c=2;'
 
+# multiple statements
+assert 4 '3+3;a=4;'
+
 echo OK
