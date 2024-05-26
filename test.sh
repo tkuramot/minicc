@@ -51,6 +51,8 @@ assert 1 '1==1>=0;'
 
 # local variables
 assert 1 'a=1;'
-assert 3 'a=3;'
+assert 1 'a=1==1;'
+assert 0 'a=1==0;'
+assert 2 'a=b=c=2;'
 
 echo OK
