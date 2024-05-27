@@ -59,15 +59,18 @@ assert 8 'foo=4;bar=foo+4;'
 assert 12 'f=4;foo=4;bar=f+foo+4;'
 
 # multiple statements
-assert 4 '3+3;a=4;'
-assert 5 'a=4;a=a+1;'
+assert 4 '3+3; a=4;'
+assert 5 'a=4; a=a+1;'
 
 # return statement
 assert 4 'return 4;'
-assert 4 'a=4;return a;'
-assert 5 'a=4;return a+1;'
+assert 4 'a=4; return a;'
+assert 5 'a=4; return a+1;'
 
 # if statements
-assert 4 'a=3;if (1) a=a+1;return a;'
+assert 4 'a=3; if (1) a=a+1;return a;'
+assert 3 'a=3; if (0) a=a+1;return a;'
+assert 4 'a=4; if (1) return 4; return 2;'
+assert 2 'a=4; if (0) return 4; return 2;'
 
 echo OK
