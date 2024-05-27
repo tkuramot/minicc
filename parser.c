@@ -45,9 +45,13 @@ void error_at(char *loc, char *fmt, ...) {
   exit(1);
 }
 
+bool ft_isalpha(char c) { return isalpha(c) || c == '_'; }
+
+bool ft_isalnum(char c) { return ft_isalpha(c) || isdigit(c); }
+
 bool consume(char *op) {
   if (token->kind != TK_RESERVED || token->len != strlen(op) ||
-      memcmp(token->str, op, token->len)) {
+      memcmp(token->str, op, token->len) == 0) {
     return false;
   }
   token = token->next;
@@ -106,6 +110,12 @@ Token *tokenize(char *p) {
       continue;
     }
 
+    if (strncmp(p, "return", 6) == 0 && !ft_isalnum(p[6])) {
+      cur = new_token(TK_RETURN, cur, p, 6);
+      p += 6;
+      continue;
+    }
+
     if (startwith(p, "==") || startwith(p, "!=") || startwith(p, "<=") ||
         startwith(p, ">=")) {
       cur = new_token(TK_RESERVED, cur, p, 2);
@@ -119,10 +129,10 @@ Token *tokenize(char *p) {
       continue;
     }
 
-    if (isalpha(*p)) {
+    if (ft_isalpha(*p)) {
       cur = new_token(TK_IDENT, cur, p, 0);
       char *q = p;
-      while (isalpha(*p))
+      while (ft_isalnum(*p))
         p++;
       cur->len = p - q;
       continue;
@@ -145,7 +155,7 @@ Token *tokenize(char *p) {
 
 LVar *find_lvar(Token *tok) {
   for (LVar *var = locals; var; var = var->next) {
-    if (var->len == tok->len && !memcmp(var->name, tok->str, var->len)) {
+    if (var->len == tok->len && memcmp(var->name, tok->str, var->len)) {
       return var;
     }
   }
