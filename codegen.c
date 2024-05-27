@@ -19,6 +19,8 @@ void gen_lval(Node *node) {
 }
 
 void gen(Node *node) {
+  static int unique_label;
+
   if (node->kind == ND_NUM) {
     printf("  push %d\n", node->val);
     return;
@@ -47,8 +49,25 @@ void gen(Node *node) {
     printf("  mov [rax], rdi\n");
     printf("  push rdi\n");
     return;
+  } else if (node->kind == ND_IF) {
+    gen(node->lhs);
+
+    /*
+     * pop the value from the stack and compare it with 0
+     * if the value is 0, which means false, jump to the end
+     */
+    printf("  pop rax\n");
+    printf("  cmp rax, 0\n");
+    printf("  je .Lend%d\n", unique_label);
+    gen(node->rhs);
+		// fprintf(stderr, "==%d\n", node->lhs->kind);
+		// fprintf(stderr, "==%d\n", node->rhs->kind);
+    printf(".Lend%d:\n", unique_label);
+
+    unique_label++;
+    return;
   } else if (node->kind == ND_RETURN) {
-		gen(node->lhs);
+    gen(node->lhs);
 
     /*
      * reset the stack pointer and the base pointer

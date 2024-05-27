@@ -303,7 +303,16 @@ Node *expr() { return assign(); }
 
 Node *stmt() {
   Node *node;
-  if (consume_kind(TK_RETURN)) {
+  if (consume_kind(TK_IF)) {
+    Node *cond;
+    expect("(");
+    cond = expr();
+    expect(")");
+    Node *then = stmt();
+
+    node = new_node(ND_IF, cond, then);
+    return node;
+  } else if (consume_kind(TK_RETURN)) {
     node = new_node(ND_RETURN, expr(), NULL);
   } else {
     node = expr();

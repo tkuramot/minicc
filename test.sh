@@ -67,4 +67,7 @@ assert 4 'return 4;'
 assert 4 'a=4;return a;'
 assert 5 'a=4;return a+1;'
 
+# if statements
+assert 4 'a=3;if (1) a=a+1;return a;'
+
 echo OK
