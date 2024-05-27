@@ -36,6 +36,20 @@ void gen(Node *node) {
     printf("  push rax\n");
     return;
   } else if (node->kind == ND_FUNC) {
+    // TODO rsp must be aligned to 16 bytes
+    /*
+     * handle up to 6 arguments
+     */
+    const char *reg[] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9", NULL};
+
+    int i = 0;
+    Node *arg = node->args;
+    while (reg[i] && arg) {
+      gen(arg);
+      printf("  pop %s\n", reg[i]);
+      i++;
+      arg = arg->next;
+    }
     printf("  call %.*s\n", node->len, node->name);
     return;
   } else if (node->kind == ND_ASSIGN) {

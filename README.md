@@ -10,8 +10,10 @@
 - conditional statements
 - iteration structure (while, for)
 - compound statements
-- function call without arguments
+- function call with and without arguments
 
 ## references
 
-[低レイヤを知りたい人のためのCコンパイラ作成入門](https://www.sigbus.info/compilerbook)
+- [低レイヤを知りたい人のためのCコンパイラ作成入門](https://www.sigbus.info/compilerbook)
+- [System V ABI](https://wiki.osdev.org/System_V_ABI)
+- [System V ABI - AMD64 Architecture Processor Supplement](https://gitlab.com/x86-psABIs/x86-64-ABI)

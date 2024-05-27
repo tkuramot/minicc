@@ -149,7 +149,7 @@ Token *tokenize(char *p) {
 
     if (*p == '+' || *p == '-' || *p == '*' || *p == '/' || *p == '(' ||
         *p == ')' || *p == '{' || *p == '}' || *p == '<' || *p == '>' ||
-        *p == '=' || *p == ';') {
+        *p == '=' || *p == ',' || *p == ';') {
       cur = new_token(TK_RESERVED, cur, p++, 1);
       continue;
     }
@@ -211,11 +211,23 @@ Node *primary() {
 
   Token *tok = consume_ident();
   if (tok) {
-    if (consume("(") && consume(")")) {
+    if (consume("(")) {
       Node *node = new_node(ND_FUNC, NULL, NULL);
 
       node->name = tok->str;
       node->len = tok->len;
+
+      Node *args = NULL;
+      if (!consume(")")) {
+        args = expr();
+        Node *arg = args;
+        while (consume(",")) {
+          arg->next = expr();
+          arg = arg->next;
+        }
+        expect(")");
+      }
+      node->args = args;
       return node;
     } else {
       Node *node = new_node(ND_LVAR, NULL, NULL);

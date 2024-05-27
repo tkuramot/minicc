@@ -97,5 +97,7 @@ assert 84 'a=0; b=0; for (; a<42; a=a+1) {c=a+1; b=b+2;} return b;'
 
 # function call
 assert 42 'foo(); return 42;'
+assert 42 'bar(3, 4); return 42;'
+assert 42 'baz(1, 2, 3, 4, 5, 6); return 42;'
 
 echo OK
