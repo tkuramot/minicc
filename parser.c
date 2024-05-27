@@ -118,7 +118,11 @@ Token *tokenize(char *p) {
       continue;
     }
 
-    if (strncmp(p, "return", 6) == 0 && !ft_isalnum(p[6])) {
+    if (strncmp(p, "if", 2) == 0 && !ft_isalnum(p[3])) {
+      cur = new_token(TK_IF, cur, p, 2);
+      p += 2;
+      continue;
+    } else if (strncmp(p, "return", 6) == 0 && !ft_isalnum(p[6])) {
       cur = new_token(TK_RETURN, cur, p, 6);
       p += 6;
       continue;
