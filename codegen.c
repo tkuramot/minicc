@@ -56,22 +56,22 @@ void gen(Node *node) {
      * pop the value from the stack and compare it with 0
      * if the value is 0, which means false, jump to the end or else statement
      */
+    int cur_label = unique_label++;
     printf("  pop rax\n");
     printf("  cmp rax, 0\n");
     if (node->els) {
-      printf("  je .Lelse%d\n", unique_label);
+      printf("  je .Lelse%d\n", cur_label);
       gen(node->then);
-      printf("  jmp .Lend%d\n", unique_label);
-      printf(".Lelse%d:\n", unique_label);
+      printf("  jmp .Lend%d\n", cur_label);
+      printf(".Lelse%d:\n", cur_label);
       gen(node->els);
-      printf(".Lend%d:\n", unique_label);
+      printf(".Lend%d:\n", cur_label);
     } else {
-      printf("  je .Lend%d\n", unique_label);
+      printf("  je .Lend%d\n", cur_label);
       gen(node->then);
-      printf(".Lend%d:\n", unique_label);
+      printf(".Lend%d:\n", cur_label);
     }
 
-    unique_label++;
     return;
   } else if (node->kind == ND_RETURN) {
     gen(node->lhs);
