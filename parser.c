@@ -123,7 +123,7 @@ Token *tokenize(char *p) {
       p += 2;
       continue;
     } else if (strncmp(p, "else", 4) == 0 && !ft_isalnum(p[4])) {
-      cur = new_token(TK_ELSE, cur, p, 4);
+      cur = new_token(TK_ELS, cur, p, 4);
       p += 4;
       continue;
     } else if (strncmp(p, "return", 6) == 0 && !ft_isalnum(p[6])) {
@@ -313,13 +313,13 @@ Node *stmt() {
     node->cond = expr();
     expect(")");
     node->then = stmt();
-    if (consume_kind(TK_ELSE)) {
+    if (consume_kind(TK_ELS)) {
       node->els = stmt();
     }
 
     return node;
-  } else if (consume_kind(TK_ELSE)) {
-    node = new_node(ND_ELSE, NULL, NULL);
+  } else if (consume_kind(TK_ELS)) {
+    node = new_node(ND_ELS, NULL, NULL);
     node->then = stmt();
 
     return node;

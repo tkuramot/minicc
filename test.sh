@@ -73,4 +73,7 @@ assert 3 'a=3; if (0) a=a+1;return a;'
 assert 4 'a=4; if (1) return 4; return 2;'
 assert 2 'a=4; if (0) return 4; return 2;'
 
+# if else statements
+assert 2 'if (0) return 4; else return 2;'
+
 echo OK
