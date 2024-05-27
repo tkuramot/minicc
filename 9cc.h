@@ -27,6 +27,7 @@ typedef enum {
   ND_LE,
   ND_ASSIGN,
   ND_LVAR,
+  ND_FUNC,
   ND_NUM,
   ND_IF,
   ND_ELS,
@@ -57,8 +58,10 @@ struct Node {
   Node *init;
   Node *update;
   Node *block[MAX_BLOCK_LINE];
-  int val;
-  int offset;
+  int val;    // use for ND_NUM
+  int offset; // use for ND_LVAR
+  char *name; // use for ND_FUNC
+  int len;    // use for ND_FUNC
 };
 
 extern char *user_input;

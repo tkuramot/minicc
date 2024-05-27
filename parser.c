@@ -211,21 +211,29 @@ Node *primary() {
 
   Token *tok = consume_ident();
   if (tok) {
-    Node *node = new_node(ND_LVAR, NULL, NULL);
+    if (consume("(") && consume(")")) {
+      Node *node = new_node(ND_FUNC, NULL, NULL);
 
-    LVar *lvar = find_lvar(tok);
-    if (lvar) {
-      node->offset = lvar->offset;
+      node->name = tok->str;
+      node->len = tok->len;
+      return node;
     } else {
-      lvar = calloc(1, sizeof(LVar));
-      lvar->next = locals;
-      lvar->name = tok->str;
-      lvar->len = tok->len;
-      lvar->offset = locals ? locals->offset + 8 : 8;
-      node->offset = lvar->offset;
-      locals = lvar;
+      Node *node = new_node(ND_LVAR, NULL, NULL);
+
+      LVar *lvar = find_lvar(tok);
+      if (lvar) {
+        node->offset = lvar->offset;
+      } else {
+        lvar = calloc(1, sizeof(LVar));
+        lvar->next = locals;
+        lvar->name = tok->str;
+        lvar->len = tok->len;
+        lvar->offset = locals ? locals->offset + 8 : 8;
+        node->offset = lvar->offset;
+        locals = lvar;
+      }
+      return node;
     }
-    return node;
   }
 
   return new_node_num(expect_number());

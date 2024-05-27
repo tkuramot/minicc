@@ -10,6 +10,7 @@
 - conditional statements
 - iteration structure (while, for)
 - compound statements
+- function call without arguments
 
 ## references
 

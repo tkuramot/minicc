@@ -5,7 +5,7 @@ assert() {
   input="$2"
 
   ./9cc "$input" > tmp.s
-  cc -o tmp tmp.s -Wa,--noexecstack
+  cc -o tmp tmp.s mock.c -Wa,--noexecstack
   ./tmp
   actual="$?"
 
@@ -94,5 +94,8 @@ assert 10 'a=10; for (; ; a=a+2) if (a >= 10) return a;'
 # compound statements
 assert 42 'a=0; b=0; if (1) {a=40; b=a+2;} return b;'
 assert 84 'a=0; b=0; for (; a<42; a=a+1) {c=a+1; b=b+2;} return b;'
+
+# function call
+assert 42 'foo(); return 42;'
 
 echo OK
