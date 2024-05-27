@@ -1,6 +1,9 @@
 #ifndef NINECC_H
 #define NINECC_H
 
+#define MAX_CODE_LINE 100
+#define MAX_BLOCK_LINE 10
+
 typedef enum {
   TK_RESERVED,
   TK_IDENT,
@@ -29,6 +32,7 @@ typedef enum {
   ND_ELS,
   ND_WHILE,
   ND_FOR,
+  ND_BLOCK,
   ND_RETURN,
 } NodeKind;
 
@@ -52,13 +56,14 @@ struct Node {
   Node *els;
   Node *init;
   Node *update;
+  Node *block[MAX_BLOCK_LINE];
   int val;
   int offset;
 };
 
 extern char *user_input;
 extern Token *token;
-extern Node *code[100];
+extern Node *code[MAX_CODE_LINE];
 
 Token *tokenize(char *p);
 void error(char *fmt, ...);

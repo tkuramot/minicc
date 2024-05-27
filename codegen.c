@@ -105,6 +105,12 @@ void gen(Node *node) {
     printf("  jmp .Lbegin%d\n", cur_label);
     printf(".Lend%d:\n", cur_label);
     return;
+  } else if (node->kind == ND_BLOCK) {
+    for (int i = 0; node->block[i]; ++i) {
+      gen(node->block[i]);
+      printf("  pop rax\n");
+    }
+    return;
   } else if (node->kind == ND_RETURN) {
     /*
      * reset the stack pointer and the base pointer

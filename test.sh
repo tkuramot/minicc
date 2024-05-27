@@ -91,4 +91,8 @@ assert 5 'a=0; for (; a<5; a=a+1) b=1; return a;'
 assert 10 'a=10; for (; a<5;) b=1; return a;'
 assert 10 'a=10; for (; ; a=a+2) if (a >= 10) return a;'
 
+# compound statements
+assert 42 'a=0; b=0; if (1) {a=40; b=a+2;} return b;'
+assert 84 'a=0; b=0; for (; a<42; a=a+1) {c=a+1; b=b+2;} return b;'
+
 echo OK

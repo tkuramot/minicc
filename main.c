@@ -23,6 +23,10 @@ int main(int argc, char **argv) {
   for (int i = 0; code[i]; ++i) {
     gen(code[i]);
 
+    /*
+     * every statement should leave the result at the top of the stack
+     * pop the value from the stack to avoid stack overflow
+     */
     printf("  pop rax\n");
   }
 

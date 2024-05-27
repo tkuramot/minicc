@@ -5,10 +5,11 @@
 - arithmetic operators
 - operator precedence
 - relational and logical operators
+- multiple statements
 - variable declaration and assignments
 - conditional statements
-- while statements
-- for statements
+- iteration structure (while, for)
+- compound statements
 
 ## references
 

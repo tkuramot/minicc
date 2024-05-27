@@ -18,7 +18,7 @@ struct LVar {
 
 char *user_input;
 Token *token;
-Node *code[100];
+Node *code[MAX_CODE_LINE];
 LVar *locals;
 
 static Node *expr();
@@ -148,7 +148,8 @@ Token *tokenize(char *p) {
     }
 
     if (*p == '+' || *p == '-' || *p == '*' || *p == '/' || *p == '(' ||
-        *p == ')' || *p == '<' || *p == '>' || *p == '=' || *p == ';') {
+        *p == ')' || *p == '{' || *p == '}' || *p == '<' || *p == '>' ||
+        *p == '=' || *p == ';') {
       cur = new_token(TK_RESERVED, cur, p++, 1);
       continue;
     }
@@ -325,12 +326,9 @@ Node *stmt() {
     if (consume_kind(TK_ELS)) {
       node->els = stmt();
     }
-    return node;
   } else if (consume_kind(TK_ELS)) {
     node = new_node(ND_ELS, NULL, NULL);
     node->then = stmt();
-
-    return node;
   } else if (consume_kind(TK_WHILE)) {
     node = new_node(ND_WHILE, NULL, NULL);
 
@@ -338,7 +336,6 @@ Node *stmt() {
     node->cond = expr();
     expect(")");
     node->then = stmt();
-    return node;
   } else if (consume_kind(TK_FOR)) {
     node = new_node(ND_FOR, NULL, NULL);
 
@@ -356,13 +353,21 @@ Node *stmt() {
       expect(")");
     }
     node->then = stmt();
-    return node;
   } else if (consume_kind(TK_RETURN)) {
     node = new_node(ND_RETURN, expr(), NULL);
+    expect(";");
+  } else if (consume("{")) {
+    node = new_node(ND_BLOCK, NULL, NULL);
+
+    int i = 0;
+    while (!consume("}")) {
+      node->block[i++] = stmt();
+    }
+    node->block[i] = NULL;
   } else {
     node = expr();
+    expect(";");
   }
-  expect(";");
   return node;
 }
 
