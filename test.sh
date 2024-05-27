@@ -68,6 +68,7 @@ assert 4 'a=4; return a;'
 assert 5 'a=4; return a+1;'
 
 # if statements
+assert 3 'a=3; if(1) return a;'
 assert 4 'a=3; if (1) a=a+1;return a;'
 assert 3 'a=3; if (0) a=a+1;return a;'
 assert 4 'a=4; if (1) return 4; return 2;'
