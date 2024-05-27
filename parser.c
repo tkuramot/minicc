@@ -308,13 +308,20 @@ Node *expr() { return assign(); }
 Node *stmt() {
   Node *node;
   if (consume_kind(TK_IF)) {
-    Node *cond;
+    node = new_node(ND_IF, NULL, NULL);
     expect("(");
-    cond = expr();
+    node->cond = expr();
     expect(")");
-    Node *then = stmt();
+    node->then = stmt();
+    if (consume_kind(TK_ELSE)) {
+      node->els = stmt();
+    }
 
-    node = new_node(ND_IF, cond, then);
+    return node;
+  } else if (consume_kind(TK_ELSE)) {
+    node = new_node(ND_ELSE, NULL, NULL);
+    node->then = stmt();
+
     return node;
   } else if (consume_kind(TK_RETURN)) {
     node = new_node(ND_RETURN, expr(), NULL);

@@ -43,6 +43,9 @@ struct Node {
   NodeKind kind;
   Node *lhs;
   Node *rhs;
+  Node *cond;
+  Node *then;
+  Node *els;
   int val;
   int offset;
 };
