@@ -81,4 +81,7 @@ assert 2 'if (0) return 4; else return 2;'
 assert 7 'a=3; if (a==9) return 9; else if (a==8) return 8; else return 7;'
 assert 8 'a=3; if (a==9) return 9; else if (a==3) return 8; else return 7;'
 
+# while statements
+assert 5 'a=0; while (a<5) a=a+1;'
+
 echo OK

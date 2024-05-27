@@ -313,6 +313,7 @@ Node *stmt() {
   Node *node;
   if (consume_kind(TK_IF)) {
     node = new_node(ND_IF, NULL, NULL);
+
     expect("(");
     node->cond = expr();
     expect(")");
@@ -320,12 +321,19 @@ Node *stmt() {
     if (consume_kind(TK_ELS)) {
       node->els = stmt();
     }
-
     return node;
   } else if (consume_kind(TK_ELS)) {
     node = new_node(ND_ELS, NULL, NULL);
     node->then = stmt();
 
+    return node;
+  } else if (consume_kind(TK_WHILE)) {
+    node = new_node(ND_WHILE, NULL, NULL);
+
+    expect("(");
+    node->cond = expr();
+    expect(")");
+    node->then = stmt();
     return node;
   } else if (consume_kind(TK_RETURN)) {
     node = new_node(ND_RETURN, expr(), NULL);

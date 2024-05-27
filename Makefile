@@ -28,6 +28,7 @@ ctr/compile:
 
 ctr/test: ctr/compile
 	docker run --rm -v $(PWD):/9cc -w /9cc --platform linux/amd64 compilerbook make test
+t: ctr/test
 
 ctr/in:
 	docker run --rm -it -v $(PWD):/9cc -w /9cc --platform linux/amd64 compilerbook /bin/bash
