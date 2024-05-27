@@ -8,6 +8,7 @@
 - variable declaration and assignments
 - conditional statements
 - while statements
+- for statements
 
 ## references
 

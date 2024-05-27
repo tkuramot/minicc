@@ -8,6 +8,7 @@ typedef enum {
   TK_IF,
   TK_ELS,
   TK_WHILE,
+  TK_FOR,
   TK_RETURN,
   TK_EOF,
 } TokenKind;
@@ -27,6 +28,7 @@ typedef enum {
   ND_IF,
   ND_ELS,
   ND_WHILE,
+  ND_FOR,
   ND_RETURN,
 } NodeKind;
 
@@ -48,6 +50,8 @@ struct Node {
   Node *cond;
   Node *then;
   Node *els;
+  Node *init;
+  Node *update;
   int val;
   int offset;
 };

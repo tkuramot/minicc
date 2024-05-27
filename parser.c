@@ -130,6 +130,10 @@ Token *tokenize(char *p) {
       cur = new_token(TK_WHILE, cur, p, 5);
       p += 5;
       continue;
+    } else if (strncmp(p, "for", 3) == 0 && !ft_isalnum(p[3])) {
+      cur = new_token(TK_FOR, cur, p, 3);
+      p += 3;
+      continue;
     } else if (strncmp(p, "return", 6) == 0 && !ft_isalnum(p[6])) {
       cur = new_token(TK_RETURN, cur, p, 6);
       p += 6;
@@ -333,6 +337,24 @@ Node *stmt() {
     expect("(");
     node->cond = expr();
     expect(")");
+    node->then = stmt();
+    return node;
+  } else if (consume_kind(TK_FOR)) {
+    node = new_node(ND_FOR, NULL, NULL);
+
+    expect("(");
+    if (!consume(";")) {
+      node->init = expr();
+      expect(";");
+    }
+    if (!consume(";")) {
+      node->cond = expr();
+      expect(";");
+    }
+    if (!consume(")")) {
+      node->update = expr();
+      expect(")");
+    }
     node->then = stmt();
     return node;
   } else if (consume_kind(TK_RETURN)) {

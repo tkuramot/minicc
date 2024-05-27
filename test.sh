@@ -84,4 +84,11 @@ assert 8 'a=3; if (a==9) return 9; else if (a==3) return 8; else return 7;'
 # while statements
 assert 5 'a=0; while (a<5) a=a+1;'
 
+# for statements
+assert 5 'b=0; for (a=0; a<5; a=a+1) b=b+1; return b;'
+assert 10 'a=0; for (; a<10; a=a+2) b=1; return a;'
+assert 5 'a=0; for (; a<5; a=a+1) b=1; return a;'
+assert 10 'a=10; for (; a<5;) b=1; return a;'
+assert 10 'a=10; for (; ; a=a+2) if (a >= 10) return a;'
+
 echo OK

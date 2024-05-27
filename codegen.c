@@ -25,13 +25,12 @@ void gen(Node *node) {
     printf("  push %d\n", node->val);
     return;
   } else if (node->kind == ND_LVAR) {
-    gen_lval(node);
-
     /*
      * get the local variable value from the stack
      * pop from the stack to the rax register
      * dereference the rax register and push the value to the stack
      */
+    gen_lval(node);
     printf("  pop rax\n");
     printf("  mov rax, [rax]\n");
     printf("  push rax\n");
@@ -51,12 +50,12 @@ void gen(Node *node) {
     return;
   } else if (node->kind == ND_IF) {
     int cur_label = unique_label++;
-    gen(node->cond);
 
     /*
      * pop the value from the stack and compare it with 0
      * if the value is 0, which means false, jump to the end or else statement
      */
+    gen(node->cond);
     printf("  pop rax\n");
     printf("  cmp rax, 0\n");
     if (node->els) {
@@ -75,22 +74,43 @@ void gen(Node *node) {
   } else if (node->kind == ND_WHILE) {
     int cur_label = unique_label++;
 
-    printf("  .Lbegin%d:\n", cur_label);
+    printf(".Lbegin%d:\n", cur_label);
     gen(node->cond);
     printf("  pop rax\n");
     printf("  cmp rax, 0\n");
     printf("  je .Lend%d\n", cur_label);
     gen(node->then);
     printf("  jmp .Lbegin%d\n", cur_label);
-    printf("  .Lend%d:\n", cur_label);
-		return;
-  } else if (node->kind == ND_RETURN) {
-    gen(node->lhs);
+    printf(".Lend%d:\n", cur_label);
+    return;
+  } else if (node->kind == ND_FOR) {
+    int cur_label = unique_label++;
 
+    if (node->init) {
+      gen(node->init);
+    }
+    printf(".Lbegin%d:\n", cur_label);
+    if (node->cond) {
+      gen(node->cond);
+    }
+    printf("  pop rax\n");
+    printf("  cmp rax, 0\n");
+    printf("  je .Lend%d\n", cur_label);
+    if (node->then) {
+      gen(node->then);
+    }
+    if (node->update) {
+      gen(node->update);
+    }
+    printf("  jmp .Lbegin%d\n", cur_label);
+    printf(".Lend%d:\n", cur_label);
+    return;
+  } else if (node->kind == ND_RETURN) {
     /*
      * reset the stack pointer and the base pointer
      * return from the function
      */
+    gen(node->lhs);
     printf("  pop rax\n");
     printf("  mov rsp, rbp\n");
     printf("  pop rbp\n");
