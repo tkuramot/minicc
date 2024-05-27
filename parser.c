@@ -122,6 +122,10 @@ Token *tokenize(char *p) {
       cur = new_token(TK_IF, cur, p, 2);
       p += 2;
       continue;
+    } else if (strncmp(p, "else", 4) == 0 && !ft_isalnum(p[4])) {
+      cur = new_token(TK_ELSE, cur, p, 4);
+      p += 4;
+      continue;
     } else if (strncmp(p, "return", 6) == 0 && !ft_isalnum(p[6])) {
       cur = new_token(TK_RETURN, cur, p, 6);
       p += 6;
