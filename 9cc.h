@@ -7,6 +7,7 @@ typedef enum {
   TK_NUM,
   TK_IF,
   TK_ELS,
+	TK_WHILE,
   TK_RETURN,
   TK_EOF,
 } TokenKind;

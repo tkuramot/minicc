@@ -126,6 +126,10 @@ Token *tokenize(char *p) {
       cur = new_token(TK_ELS, cur, p, 4);
       p += 4;
       continue;
+    } else if (strncmp(p, "while", 5) == 0 && !ft_isalnum(p[5])) {
+      cur = new_token(TK_WHILE, cur, p, 5);
+      p += 5;
+      continue;
     } else if (strncmp(p, "return", 6) == 0 && !ft_isalnum(p[6])) {
       cur = new_token(TK_RETURN, cur, p, 6);
       p += 6;
