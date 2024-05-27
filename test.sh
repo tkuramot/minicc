@@ -62,4 +62,9 @@ assert 12 'f=4;foo=4;bar=f+foo+4;'
 assert 4 '3+3;a=4;'
 assert 5 'a=4;a=a+1;'
 
+# return statement
+assert 4 'return 4;'
+assert 4 'a=4;return a;'
+assert 5 'a=4;return a+1;'
+
 echo OK

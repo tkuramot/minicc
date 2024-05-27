@@ -51,7 +51,15 @@ bool ft_isalnum(char c) { return ft_isalpha(c) || isdigit(c); }
 
 bool consume(char *op) {
   if (token->kind != TK_RESERVED || token->len != strlen(op) ||
-      memcmp(token->str, op, token->len) == 0) {
+      memcmp(token->str, op, token->len) != 0) {
+    return false;
+  }
+  token = token->next;
+  return true;
+}
+
+bool consume_kind(TokenKind kind) {
+  if (token->kind != kind) {
     return false;
   }
   token = token->next;
@@ -69,7 +77,7 @@ Token *consume_ident() {
 
 void expect(char *op) {
   if (token->kind != TK_RESERVED || token->len != strlen(op) ||
-      memcmp(token->str, op, token->len)) {
+      memcmp(token->str, op, token->len) != 0) {
     error_at(token->str, "\"%s\" expected", op);
   }
   token = token->next;
@@ -155,7 +163,7 @@ Token *tokenize(char *p) {
 
 LVar *find_lvar(Token *tok) {
   for (LVar *var = locals; var; var = var->next) {
-    if (var->len == tok->len && memcmp(var->name, tok->str, var->len)) {
+    if (var->len == tok->len && memcmp(var->name, tok->str, var->len) == 0) {
       return var;
     }
   }
@@ -290,7 +298,12 @@ Node *assign() {
 Node *expr() { return assign(); }
 
 Node *stmt() {
-  Node *node = expr();
+  Node *node;
+  if (consume_kind(TK_RETURN)) {
+    node = new_node(ND_RETURN, expr(), NULL);
+  } else {
+    node = expr();
+  }
   expect(";");
   return node;
 }
