@@ -16,7 +16,7 @@
 
 ```bash
 program    = func*
-func       = ident "(" (ident ("," ident)*)? ")" "{" stmt* "}"
+func       = ident "(" params? ")" "{" stmt* "}"
 stmt       = expr ";"
             | "{" stmt* "}"
             | "if" "(" expr ")" stmt ("else" stmt)?
@@ -30,7 +30,9 @@ relational = add ("<" add | "<=" add | ">" add | ">=" add)*
 add        = mul ("+" mul | "-" mul)*
 mul        = unary ("*" unary | "/" unary)*
 unary      = ("+" | "-")? primary
-primary    = num | ident ("(" (expr ("," expr)*)? ")")? | "(" expr ")"
+primary    = num | ident ("(" args? ")")? | "(" expr ")"
+args       = expr ("," expr)*
+params     = ident ("," ident)*
 ```
 
 ## references
