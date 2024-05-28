@@ -14,7 +14,7 @@ void gen_lval(Node *node) {
    * push the rdi register to the stack
    */
   printf("  mov rax, rbp\n");
-  printf("  sub rax, %d\n", node->offset);
+  printf("  sub rax, %d\n", node->cont.offset);
   printf("  push rax\n");
 }
 
@@ -22,7 +22,7 @@ void gen(Node *node) {
   static int unique_label;
 
   if (node->kind == ND_NUM) {
-    printf("  push %d\n", node->val);
+    printf("  push %d\n", node->cont.val);
     return;
   } else if (node->kind == ND_LVAR) {
     /*
@@ -49,17 +49,17 @@ void gen(Node *node) {
      */
     const char *reg[] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9", NULL};
 
-    Node *arg = node->args;
+    Node *arg = node->cont.function.args;
     for (int i = 0; reg[i] && arg; ++i) {
       gen(arg);
       printf("  pop %s\n", reg[i]);
       arg = arg->next;
     }
-    printf("  call %.*s\n", node->len, node->name);
+    printf("  call %.*s\n", node->cont.function.len, node->cont.function.name);
     return;
   } else if (node->kind == ND_ASSIGN) {
-    gen_lval(node->lhs);
-    gen(node->rhs);
+    gen_lval(node->cont.binary.lhs);
+    gen(node->cont.binary.rhs);
 
     /*
      * pop the value and the address from the stack
@@ -77,19 +77,19 @@ void gen(Node *node) {
      * pop the value from the stack and compare it with 0
      * if the value is 0, which means false, jump to the end or else statement
      */
-    gen(node->cond);
+    gen(node->cont.conditional.cond);
     printf("  pop rax\n");
     printf("  cmp rax, 0\n");
-    if (node->els) {
+    if (node->cont.conditional.els) {
       printf("  je .Lelse%d\n", cur_label);
-      gen(node->then);
+      gen(node->cont.conditional.then);
       printf("  jmp .Lend%d\n", cur_label);
       printf(".Lelse%d:\n", cur_label);
-      gen(node->els);
+      gen(node->cont.conditional.els);
       printf(".Lend%d:\n", cur_label);
     } else {
       printf("  je .Lend%d\n", cur_label);
-      gen(node->then);
+      gen(node->cont.conditional.then);
       printf(".Lend%d:\n", cur_label);
     }
     return;
@@ -97,39 +97,39 @@ void gen(Node *node) {
     int cur_label = unique_label++;
 
     printf(".Lbegin%d:\n", cur_label);
-    gen(node->cond);
+    gen(node->cont.loop.cond);
     printf("  pop rax\n");
     printf("  cmp rax, 0\n");
     printf("  je .Lend%d\n", cur_label);
-    gen(node->then);
+    gen(node->cont.loop.then);
     printf("  jmp .Lbegin%d\n", cur_label);
     printf(".Lend%d:\n", cur_label);
     return;
   } else if (node->kind == ND_FOR) {
     int cur_label = unique_label++;
 
-    if (node->init) {
-      gen(node->init);
+    if (node->cont.loop.init) {
+      gen(node->cont.loop.init);
     }
     printf(".Lbegin%d:\n", cur_label);
-    if (node->cond) {
-      gen(node->cond);
+    if (node->cont.loop.cond) {
+      gen(node->cont.loop.cond);
     }
     printf("  pop rax\n");
     printf("  cmp rax, 0\n");
     printf("  je .Lend%d\n", cur_label);
-    if (node->then) {
-      gen(node->then);
+    if (node->cont.loop.then) {
+      gen(node->cont.loop.then);
     }
-    if (node->update) {
-      gen(node->update);
+    if (node->cont.loop.update) {
+      gen(node->cont.loop.update);
     }
     printf("  jmp .Lbegin%d\n", cur_label);
     printf(".Lend%d:\n", cur_label);
     return;
   } else if (node->kind == ND_BLOCK) {
-    for (int i = 0; node->block[i]; ++i) {
-      gen(node->block[i]);
+    for (Node *stmt = node->cont.block; stmt; stmt = stmt->next) {
+      gen(stmt);
       printf("  pop rax\n");
     }
     return;
@@ -138,7 +138,7 @@ void gen(Node *node) {
      * reset the stack pointer and the base pointer
      * return from the function
      */
-    gen(node->lhs);
+    gen(node->cont.binary.lhs);
     printf("  pop rax\n");
     printf("  mov rsp, rbp\n");
     printf("  pop rbp\n");
@@ -146,8 +146,8 @@ void gen(Node *node) {
     return;
   }
 
-  gen(node->lhs);
-  gen(node->rhs);
+  gen(node->cont.binary.lhs);
+  gen(node->cont.binary.rhs);
 
   printf("  pop rdi\n");
   printf("  pop rax\n");

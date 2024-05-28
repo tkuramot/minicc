@@ -19,6 +19,10 @@ assert() {
 
 # assert 2 'main() { return 2; }'
 
+# compound statements
+assert 42 'a=0; b=0; if (1) {a=40; b=a+2;} return b;'
+assert 84 'a=0; b=0; for (; a<42; a=a+1) {c=a+1; b=b+2;} return b;'
+
 # exit status
 assert 0 '0;'
 assert 42 '42;'

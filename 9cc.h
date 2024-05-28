@@ -2,9 +2,6 @@
 #define NINECC_H
 
 #define MAX_CODE_LINE 100
-#define MAX_BLOCK_LINE 30
-#define MAX_ARGS 10
-#define MAX_PARAMS 10
 
 typedef enum {
   TK_RESERVED,
@@ -40,8 +37,17 @@ typedef enum {
   ND_RETURN,
 } NodeKind;
 
+typedef struct LVar LVar;
 typedef struct Token Token;
+typedef union NodeContent NodeContent;
 typedef struct Node Node;
+
+struct LVar {
+  LVar *next;
+  char *name;
+  int len;
+  int offset;
+};
 
 struct Token {
   TokenKind kind;
@@ -51,23 +57,39 @@ struct Token {
   int len;
 };
 
+union NodeContent {
+  struct {
+    Node *lhs;
+    Node *rhs;
+  } binary; // +, -, *, /, ==, !=, <, <=
+  struct {
+    Node *cond;
+    Node *then;
+    Node *els;
+  } conditional; // if, else
+  struct {
+    Node *init;
+    Node *cond;
+    Node *update;
+    Node *then;
+  } loop; // while, for
+  struct {
+    char *name;
+    LVar *locals;
+    Node *args;
+    Node *params;
+    Node *block;
+    int len;
+  } function;  // function definition and call
+  Node *block; // block
+  int val;     // number
+  int offset;  // local variable
+};
+
 struct Node {
   NodeKind kind;
-  Node *lhs;
-  Node *rhs;
+  NodeContent cont;
   Node *next;
-  Node *cond;
-  Node *then;
-  Node *els;
-  Node *init;
-  Node *update;
-  Node *block[MAX_BLOCK_LINE];
-  Node *args;   // use for ND_FUNC
-  Node *params; // use for ND_FUNC
-  char *name;   // use for ND_FUNC
-  int len;      // use for ND_FUNC
-  int val;      // use for ND_NUM
-  int offset;   // use for ND_LVAR
 };
 
 extern char *user_input;

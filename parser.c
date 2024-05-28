@@ -7,15 +7,6 @@
 
 #include "9cc.h"
 
-typedef struct LVar LVar;
-
-struct LVar {
-  LVar *next;
-  char *name;
-  int len;
-  int offset;
-};
-
 char *user_input;
 Token *token;
 Node *code[MAX_CODE_LINE];
@@ -190,15 +181,15 @@ LVar *find_lvar(Token *tok) {
 Node *new_node(NodeKind kind, Node *lhs, Node *rhs) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = kind;
-  node->lhs = lhs;
-  node->rhs = rhs;
+  node->cont.binary.lhs = lhs;
+  node->cont.binary.rhs = rhs;
   return node;
 }
 
 Node *new_node_num(int val) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_NUM;
-  node->val = val;
+  node->cont.val = val;
   return node;
 }
 
@@ -235,7 +226,7 @@ Node *params() {
       lvar->offset = locals ? locals->offset + 8 : 8;
 
       cur->next = new_node(ND_LVAR, NULL, NULL);
-      cur->next->offset = lvar->offset;
+      cur->next->cont.offset = lvar->offset;
       cur = cur->next;
       locals = lvar;
     }
@@ -254,11 +245,11 @@ Node *primary() {
   if (tok) {
     if (consume("(")) {
       Node *node = new_node(ND_FNCALL, NULL, NULL);
-      node->name = tok->str;
-      node->len = tok->len;
+      node->cont.function.name = tok->str;
+      node->cont.function.len = tok->len;
 
       if (!consume(")")) {
-        node->args = args();
+        node->cont.function.args = args();
         expect(")");
       }
       return node;
@@ -267,14 +258,14 @@ Node *primary() {
 
       LVar *lvar = find_lvar(tok);
       if (lvar) {
-        node->offset = lvar->offset;
+        node->cont.offset = lvar->offset;
       } else {
         lvar = calloc(1, sizeof(LVar));
         lvar->next = locals;
         lvar->name = tok->str;
         lvar->len = tok->len;
         lvar->offset = locals ? locals->offset + 8 : 8;
-        node->offset = lvar->offset;
+        node->cont.offset = lvar->offset;
         locals = lvar;
       }
       return node;
@@ -373,50 +364,52 @@ Node *stmt() {
     node = new_node(ND_IF, NULL, NULL);
 
     expect("(");
-    node->cond = expr();
+    node->cont.conditional.cond = expr();
     expect(")");
-    node->then = stmt();
+    node->cont.conditional.then = stmt();
     if (consume_kind(TK_ELS)) {
-      node->els = stmt();
+      node->cont.conditional.els = stmt();
     }
   } else if (consume_kind(TK_ELS)) {
     node = new_node(ND_ELS, NULL, NULL);
-    node->then = stmt();
+    node->cont.conditional.then = stmt();
   } else if (consume_kind(TK_WHILE)) {
     node = new_node(ND_WHILE, NULL, NULL);
 
     expect("(");
-    node->cond = expr();
+    node->cont.loop.cond = expr();
     expect(")");
-    node->then = stmt();
+    node->cont.loop.then = stmt();
   } else if (consume_kind(TK_FOR)) {
     node = new_node(ND_FOR, NULL, NULL);
 
     expect("(");
     if (!consume(";")) {
-      node->init = expr();
+      node->cont.loop.init = expr();
       expect(";");
     }
     if (!consume(";")) {
-      node->cond = expr();
+      node->cont.loop.cond = expr();
       expect(";");
     }
     if (!consume(")")) {
-      node->update = expr();
+      node->cont.loop.update = expr();
       expect(")");
     }
-    node->then = stmt();
+    node->cont.loop.then = stmt();
   } else if (consume_kind(TK_RETURN)) {
     node = new_node(ND_RETURN, expr(), NULL);
     expect(";");
   } else if (consume("{")) {
     node = new_node(ND_BLOCK, NULL, NULL);
 
-    int i = 0;
+    Node head;
+    Node *cur = &head;
     while (!consume("}")) {
-      node->block[i++] = stmt();
+      cur->next = stmt();
+      cur = cur->next;
     }
-    node->block[i] = NULL;
+    node->cont.block = head.next;
   } else {
     node = expr();
     expect(";");
@@ -434,23 +427,25 @@ Node *func() {
     error_at(token->str, "function definition expected");
   }
   Node *node = new_node(ND_FNDEF, NULL, NULL);
-  node->name = tok->str;
-  node->len = tok->len;
+  node->cont.function.name = tok->str;
+  node->cont.function.len = tok->len;
 
   // parse parameters
   expect("(");
   if (!consume(")")) {
-    node->params = params();
+    node->cont.function.params = params();
     expect(")");
   }
 
   // parse function body
   expect("{");
-  int i = 0;
+  Node head;
+  Node *cur = &head;
   while (!consume("}")) {
-    node->block[i++] = stmt();
+    cur->next = stmt();
+    cur = cur->next;
   }
-  node->block[i] = NULL;
+  node->cont.function.block = head.next;
   return node;
 }
 
