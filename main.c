@@ -14,7 +14,6 @@ int main(int argc, char **argv) {
 
   printf(".intel_syntax noprefix\n");
   printf(".global main\n");
-  printf("main:\n");
 
   for (int i = 0; code[i]; ++i) {
     gen(code[i]);

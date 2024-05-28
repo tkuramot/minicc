@@ -1,6 +1,12 @@
 #ifndef NINECC_H
 #define NINECC_H
 
+#ifdef COMMENT
+#define COMMENT_PRINT(fmt, args...) printf("\n" fmt "\n", ##args)
+#else
+#define COMMENT_PRINT(fmt, args...)
+#endif
+
 #define MAX_CODE_LINE 100
 
 typedef enum {

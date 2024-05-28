@@ -39,7 +39,8 @@ void gen(Node *node) {
     printf("  push rax\n");
     return;
   } else if (node->kind == ND_FNCALL) {
-    // align the stack pointer to 16 bytes
+    COMMENT_PRINT(
+        "  # function call begin. align the stack pointer to 16 bytes");
     printf("  mov rax, rsp\n");
     printf("  mov rdi, 16\n");
     printf("  cqo\n");
@@ -50,6 +51,7 @@ void gen(Node *node) {
     /*
      * handle up to 6 arguments
      */
+    COMMENT_PRINT("  # copy the arguments to the registers");
     Node *arg = node->cont.function.args;
     for (int i = 0; reg[i] && arg; ++i) {
       gen(arg);
@@ -57,18 +59,18 @@ void gen(Node *node) {
       arg = arg->next;
     }
     printf("  call %.*s\n", node->cont.function.len, node->cont.function.name);
+    COMMENT_PRINT("  # function call end");
     return;
   } else if (node->kind == ND_FNDEF) {
-    /*
-     * prologue
-     */
+    printf("%.*s:\n", node->cont.function.len, node->cont.function.name);
+    COMMENT_PRINT("  # prologue");
     printf("  push rbp\n");     // store the base pointer to the stack
     printf("  mov rbp, rsp\n"); // set the base pointer to the stack pointer
     if (node->cont.function.locals) {
       printf("  sub rsp, %d\n", node->cont.function.locals->offset);
     }
 
-    // copy the arguments to the local variables
+    COMMENT_PRINT("  # copy the arguments to the local variables");
     int i = 0;
     for (Node *param = node->cont.function.params; param; param = param->next) {
       gen_lval(param);
@@ -76,21 +78,19 @@ void gen(Node *node) {
       printf("  mov [rax], %s\n", reg[i++]);
     }
 
-    // generate the function body
+    COMMENT_PRINT("  # function body");
     for (Node *stmt = node->cont.function.block; stmt; stmt = stmt->next) {
       gen(stmt);
     }
-    // pop the return value from the stack
-    printf("  pop rax\n");
+    printf("  pop rax\n"); // pop the return value
 
-    /*
-     * epilogue
-     */
+    COMMENT_PRINT("  # epilogue");
     printf("  mov rsp, rbp\n"); // reset the stack pointer
     printf("  pop rbp\n");      // restore the base pointer
     printf("  ret\n");          // return from the function
     return;
   } else if (node->kind == ND_ASSIGN) {
+    COMMENT_PRINT("  # assignment begin");
     gen_lval(node->cont.binary.lhs);
     gen(node->cont.binary.rhs);
 
@@ -102,6 +102,7 @@ void gen(Node *node) {
     printf("  pop rax\n");
     printf("  mov [rax], rdi\n");
     printf("  push rdi\n");
+    COMMENT_PRINT("  # assignment end");
     return;
   } else if (node->kind == ND_IF) {
     int cur_label = unique_label++;
@@ -110,6 +111,7 @@ void gen(Node *node) {
      * pop the value from the stack and compare it with 0
      * if the value is 0, which means false, jump to the end or else statement
      */
+    COMMENT_PRINT("  # if statement begin");
     gen(node->cont.conditional.cond);
     printf("  pop rax\n");
     printf("  cmp rax, 0\n");
@@ -125,10 +127,12 @@ void gen(Node *node) {
       gen(node->cont.conditional.then);
       printf(".Lend%d:\n", cur_label);
     }
+    COMMENT_PRINT("  # if statement end");
     return;
   } else if (node->kind == ND_WHILE) {
     int cur_label = unique_label++;
 
+    COMMENT_PRINT("  # while statement begin");
     printf(".Lbegin%d:\n", cur_label);
     gen(node->cont.loop.cond);
     printf("  pop rax\n");
@@ -137,10 +141,12 @@ void gen(Node *node) {
     gen(node->cont.loop.then);
     printf("  jmp .Lbegin%d\n", cur_label);
     printf(".Lend%d:\n", cur_label);
+    COMMENT_PRINT("  # while statement end");
     return;
   } else if (node->kind == ND_FOR) {
     int cur_label = unique_label++;
 
+    COMMENT_PRINT("  # for statement begin");
     if (node->cont.loop.init) {
       gen(node->cont.loop.init);
     }
@@ -159,18 +165,22 @@ void gen(Node *node) {
     }
     printf("  jmp .Lbegin%d\n", cur_label);
     printf(".Lend%d:\n", cur_label);
+    COMMENT_PRINT("  # for statement end");
     return;
   } else if (node->kind == ND_BLOCK) {
+    COMMENT_PRINT("  # block statement begin");
     for (Node *stmt = node->cont.block; stmt; stmt = stmt->next) {
       gen(stmt);
       printf("  pop rax\n");
     }
+    COMMENT_PRINT("  # block statement end");
     return;
   } else if (node->kind == ND_RETURN) {
     /*
      * reset the stack pointer and the base pointer
      * return from the function
      */
+    COMMENT_PRINT("  # return statement");
     gen(node->cont.binary.lhs);
     printf("  pop rax\n");
     printf("  mov rsp, rbp\n");
