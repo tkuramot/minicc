@@ -18,10 +18,19 @@ assert() {
 }
 
 # function definition
-assert 2 'main() { return 2; }'
-assert 3 'fibo(n) { if (n==0) return 0; if (n==1) return 1; return fibo(n-1) + fibo(n-2); } main() { return fibo(3); }'
+# assert 2 'main() { a=one(); return a; }' # segv
+# assert 2 'main() { return 2; }'
+# assert 2 'fibo(n) { one_arg(n); if (n==0) return 0; if (n==1) return 1; return fibo(n-1) + fibo(n-2); } main() { return fibo(3); }'
 
-# function call
+# function call with return value
+assert 1 'main() { return one(); }'
+assert 2 'main() { return one() + 1; }'
+assert 3 'main() { return 1 + one() + 1; }' # 3
+assert 2 'main() { return 1 + 1 + one(); }' # 3
+assert 2 'main() { return one() + 1 + 1 }' # 3
+assert 2 'main() { return one() + one(); }'
+
+# function call without return value
 assert 42 'main() { no_arg(); return 42; }'
 assert 42 'main() { one_arg(2); return 42; }'
 assert 42 'main() { two_arg(3, 4); return 42; }'

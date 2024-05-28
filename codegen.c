@@ -59,6 +59,7 @@ void gen(Node *node) {
       arg = arg->next;
     }
     printf("  call %.*s\n", node->cont.function.len, node->cont.function.name);
+    printf("  push rax\n");
     COMMENT_PRINT("  # function call end");
     return;
   } else if (node->kind == ND_FNDEF) {
