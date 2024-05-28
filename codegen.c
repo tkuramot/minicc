@@ -36,7 +36,14 @@ void gen(Node *node) {
     printf("  push rax\n");
     return;
   } else if (node->kind == ND_FUNC) {
-    // TODO rsp must be aligned to 16 bytes
+		// align the stack pointer to 16 bytes
+    printf("  mov rax, rsp\n");
+    printf("  mov rdi, 16\n");
+    printf("  cqo\n");
+    printf("  idiv rdi\n");
+    printf("  sub rdi, rdx\n");
+    printf("  sub rsp, rdi\n");
+
     /*
      * handle up to 6 arguments
      */
