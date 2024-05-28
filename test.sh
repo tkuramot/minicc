@@ -4,7 +4,7 @@ assert() {
   expected="$1"
 	input="main() {$2}"
 
-  ./9cc "$input" > tmp.s
+  ASAN_OPTIONS=detect_leaks=0 ./9cc "$input" > tmp.s
   cc -o tmp tmp.s mock.c -Wa,--noexecstack
   ./tmp
   actual="$?"
@@ -82,6 +82,7 @@ assert 1 'a=0; b=3; if (b==3) a=a+1; else if (b==3) a=a+1; return a;'
 assert 2 'if (0) return 4; else return 2;'
 assert 7 'a=3; if (a==9) return 9; else if (a==8) return 8; else return 7;'
 assert 8 'a=3; if (a==9) return 9; else if (a==3) return 8; else return 7;'
+assert 2 'if (1) {} return 2;'
 
 # while statements
 assert 5 'a=0; while (a<5) a=a+1;'

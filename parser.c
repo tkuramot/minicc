@@ -195,6 +195,7 @@ Node *new_node_num(int val) {
 
 Node *args() {
   Node head;
+  head.next = NULL;
   Node *cur = &head;
 
   int i = 0;
@@ -207,6 +208,7 @@ Node *args() {
 
 Node *params() {
   Node head;
+  head.next = NULL;
   Node *cur = &head;
 
   int i = 0;
@@ -397,19 +399,20 @@ Node *stmt() {
       expect(")");
     }
     node->cont.loop.then = stmt();
-  } else if (consume_kind(TK_RETURN)) {
-    node = new_node(ND_RETURN, expr(), NULL);
-    expect(";");
   } else if (consume("{")) {
     node = new_node(ND_BLOCK, NULL, NULL);
 
     Node head;
+    head.next = NULL;
     Node *cur = &head;
     while (!consume("}")) {
       cur->next = stmt();
       cur = cur->next;
     }
     node->cont.block = head.next;
+  } else if (consume_kind(TK_RETURN)) {
+    node = new_node(ND_RETURN, expr(), NULL);
+    expect(";");
   } else {
     node = expr();
     expect(";");
@@ -440,6 +443,7 @@ Node *func() {
   // parse function body
   expect("{");
   Node head;
+  head.next = NULL;
   Node *cur = &head;
   while (!consume("}")) {
     cur->next = stmt();
