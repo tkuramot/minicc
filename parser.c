@@ -217,17 +217,15 @@ Node *primary() {
       node->name = tok->str;
       node->len = tok->len;
 
-      Node *args = NULL;
+      int i = 0;
       if (!consume(")")) {
-        args = expr();
-        Node *arg = args;
+        node->args[i++] = expr();
         while (consume(",")) {
-          arg->next = expr();
-          arg = arg->next;
+          node->args[i++] = expr();
         }
         expect(")");
       }
-      node->args = args;
+      node->args[i] = NULL;
       return node;
     } else {
       Node *node = new_node(ND_LVAR, NULL, NULL);

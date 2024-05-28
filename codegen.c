@@ -42,13 +42,9 @@ void gen(Node *node) {
      */
     const char *reg[] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9", NULL};
 
-    int i = 0;
-    Node *arg = node->args;
-    while (reg[i] && arg) {
-      gen(arg);
+    for (int i = 0; node->args[i]; ++i) {
+      gen(node->args[i]);
       printf("  pop %s\n", reg[i]);
-      i++;
-      arg = arg->next;
     }
     printf("  call %.*s\n", node->len, node->name);
     return;

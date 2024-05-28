@@ -1,9 +1,11 @@
 #include <stdio.h>
 
-void foo() { printf("-> foo\n"); }
+void no_arg() { printf("-> foo\n"); }
 
-void bar(int x, int y) { printf("-> bar: %d, %d\n", x, y); }
+void one_arg(int x) { printf("-> bar: %d\n", x); }
 
-void baz(int a, int b, int c, int d, int e, int f) {
+void two_arg(int x, int y) { printf("-> bar: %d, %d\n", x, y); }
+
+void six_arg(int a, int b, int c, int d, int e, int f) {
   printf("-> baz: %d, %d, %d, %d, %d, %d\n", a, b, c, d, e, f);
 }

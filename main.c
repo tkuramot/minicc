@@ -18,6 +18,8 @@ int main(int argc, char **argv) {
 
   printf("  push rbp\n");     // store the base pointer to the stack
   printf("  mov rbp, rsp\n"); // set the base pointer to the stack pointer
+                              // TODO no need to allocate 208 bytes for local
+                              // variables
   printf("  sub rsp, 208\n"); // allocate 208 bytes for local variables
 
   for (int i = 0; code[i]; ++i) {

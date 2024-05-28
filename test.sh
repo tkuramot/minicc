@@ -96,8 +96,9 @@ assert 42 'a=0; b=0; if (1) {a=40; b=a+2;} return b;'
 assert 84 'a=0; b=0; for (; a<42; a=a+1) {c=a+1; b=b+2;} return b;'
 
 # function call
-assert 42 'foo(); return 42;'
-assert 42 'bar(3, 4); return 42;'
-assert 42 'baz(1, 2, 3, 4, 5, 6); return 42;'
+assert 42 'no_arg(); return 42;'
+assert 42 'one_arg(); return 42;'
+assert 42 'two_arg(3, 4); return 42;'
+assert 42 'six_arg(1, 2, 3, 4, 5, 6); return 42;'
 
 echo OK
