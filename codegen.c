@@ -2,6 +2,9 @@
 
 #include "9cc.h"
 
+// the registers to pass the arguments
+static const char *reg[] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9", NULL};
+
 void gen_lval(Node *node) {
   if (node->kind != ND_LVAR) {
     error("left value is not a variable");
@@ -47,8 +50,6 @@ void gen(Node *node) {
     /*
      * handle up to 6 arguments
      */
-    const char *reg[] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9", NULL};
-
     Node *arg = node->cont.function.args;
     for (int i = 0; reg[i] && arg; ++i) {
       gen(arg);
@@ -56,6 +57,38 @@ void gen(Node *node) {
       arg = arg->next;
     }
     printf("  call %.*s\n", node->cont.function.len, node->cont.function.name);
+    return;
+  } else if (node->kind == ND_FNDEF) {
+    /*
+     * prologue
+     */
+    printf("  push rbp\n");     // store the base pointer to the stack
+    printf("  mov rbp, rsp\n"); // set the base pointer to the stack pointer
+    if (node->cont.function.locals) {
+      printf("  sub rsp, %d\n", node->cont.function.locals->offset);
+    }
+
+    // copy the arguments to the local variables
+    int i = 0;
+    for (Node *param = node->cont.function.params; param; param = param->next) {
+      gen_lval(param);
+      printf("  pop rax\n");
+      printf("  mov [rax], %s\n", reg[i++]);
+    }
+
+    // generate the function body
+    for (Node *stmt = node->cont.function.block; stmt; stmt = stmt->next) {
+      gen(stmt);
+    }
+    // pop the return value from the stack
+    printf("  pop rax\n");
+
+    /*
+     * epilogue
+     */
+    printf("  mov rsp, rbp\n"); // reset the stack pointer
+    printf("  pop rbp\n");      // restore the base pointer
+    printf("  ret\n");          // return from the function
     return;
   } else if (node->kind == ND_ASSIGN) {
     gen_lval(node->cont.binary.lhs);

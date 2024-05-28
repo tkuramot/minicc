@@ -446,14 +446,14 @@ Node *func() {
     cur = cur->next;
   }
   node->cont.function.block = head.next;
+  node->cont.function.locals = locals;
   return node;
 }
 
 void program() {
   int i = 0;
   while (!at_eof()) {
-    code[i++] = stmt();
-    // code[i++] = func();
+    code[i++] = func();
   }
   code[i] = NULL;
 }

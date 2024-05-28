@@ -2,7 +2,7 @@
 
 assert() {
   expected="$1"
-  input="$2"
+	input="main() {$2}"
 
   ./9cc "$input" > tmp.s
   cc -o tmp tmp.s mock.c -Wa,--noexecstack
@@ -18,10 +18,6 @@ assert() {
 }
 
 # assert 2 'main() { return 2; }'
-
-# compound statements
-assert 42 'a=0; b=0; if (1) {a=40; b=a+2;} return b;'
-assert 84 'a=0; b=0; for (; a<42; a=a+1) {c=a+1; b=b+2;} return b;'
 
 # exit status
 assert 0 '0;'
@@ -106,5 +102,9 @@ assert 42 'no_arg(); return 42;'
 assert 42 'one_arg(2); return 42;'
 assert 42 'two_arg(3, 4); return 42;'
 assert 42 'six_arg(1, 2, 3, 4, 5, 6); return 42;'
+
+# compound statements
+assert 42 'a=0; b=0; if (1) {a=40; b=a+2;} return b;'
+assert 84 'a=0; b=0; for (; a<42; a=a+1) {c=a+1; b=b+2;} return b;'
 
 echo OK
