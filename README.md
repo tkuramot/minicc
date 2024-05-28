@@ -15,7 +15,8 @@
 ## syntax
 
 ```bash
-program    = stmt*
+program    = func*
+func       = ident "(" (ident ("," ident)*)? ")" "{" stmt* "}"
 stmt       = expr ";"
             | "{" stmt* "}"
             | "if" "(" expr ")" stmt ("else" stmt)?
