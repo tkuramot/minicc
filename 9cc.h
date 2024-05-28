@@ -3,7 +3,8 @@
 
 #define MAX_CODE_LINE 100
 #define MAX_BLOCK_LINE 30
-#define MAX_FUNC_ARGS 10
+#define MAX_ARGS 10
+#define MAX_PARAMS 10
 
 typedef enum {
   TK_RESERVED,
@@ -54,17 +55,19 @@ struct Node {
   NodeKind kind;
   Node *lhs;
   Node *rhs;
+  Node *next;
   Node *cond;
   Node *then;
   Node *els;
   Node *init;
   Node *update;
   Node *block[MAX_BLOCK_LINE];
-  Node *args[MAX_FUNC_ARGS]; // use for ND_FUNC
-  char *name;                // use for ND_FUNC
-  int len;                   // use for ND_FUNC
-  int val;                   // use for ND_NUM
-  int offset;                // use for ND_LVAR
+  Node *args;   // use for ND_FUNC
+  Node *params; // use for ND_FUNC
+  char *name;   // use for ND_FUNC
+  int len;      // use for ND_FUNC
+  int val;      // use for ND_NUM
+  int offset;   // use for ND_LVAR
 };
 
 extern char *user_input;

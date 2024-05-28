@@ -36,7 +36,7 @@ void gen(Node *node) {
     printf("  push rax\n");
     return;
   } else if (node->kind == ND_FNCALL) {
-		// align the stack pointer to 16 bytes
+    // align the stack pointer to 16 bytes
     printf("  mov rax, rsp\n");
     printf("  mov rdi, 16\n");
     printf("  cqo\n");
@@ -49,9 +49,11 @@ void gen(Node *node) {
      */
     const char *reg[] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9", NULL};
 
-    for (int i = 0; node->args[i]; ++i) {
-      gen(node->args[i]);
+    Node *arg = node->args;
+    for (int i = 0; reg[i] && arg; ++i) {
+      gen(arg);
       printf("  pop %s\n", reg[i]);
+      arg = arg->next;
     }
     printf("  call %.*s\n", node->len, node->name);
     return;

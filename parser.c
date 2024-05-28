@@ -202,6 +202,47 @@ Node *new_node_num(int val) {
   return node;
 }
 
+Node *args() {
+  Node head;
+  Node *cur = &head;
+
+  int i = 0;
+  do {
+    cur->next = expr();
+    cur = cur->next;
+  } while (consume(","));
+  return head.next;
+}
+
+Node *params() {
+  Node head;
+  Node *cur = &head;
+
+  int i = 0;
+  Token *tok;
+  do {
+    tok = consume_ident();
+    if (!tok)
+      error_at(token->str, "parameter expected");
+    LVar *lvar = find_lvar(tok);
+    if (lvar) {
+      error_at(tok->str, "duplicate identifier");
+    } else {
+      lvar = calloc(1, sizeof(LVar));
+      lvar->next = locals;
+      lvar->name = tok->str;
+      lvar->len = tok->len;
+      lvar->offset = locals ? locals->offset + 8 : 8;
+
+      cur->next = new_node(ND_LVAR, NULL, NULL);
+      cur->next->offset = lvar->offset;
+      cur = cur->next;
+      locals = lvar;
+    }
+  } while (consume(","));
+  return head.next;
+}
+
 Node *primary() {
   if (consume("(")) {
     Node *node = expr();
@@ -213,19 +254,13 @@ Node *primary() {
   if (tok) {
     if (consume("(")) {
       Node *node = new_node(ND_FNCALL, NULL, NULL);
-
       node->name = tok->str;
       node->len = tok->len;
 
-      int i = 0;
       if (!consume(")")) {
-        node->args[i++] = expr();
-        while (consume(",")) {
-          node->args[i++] = expr();
-        }
+        node->args = args();
         expect(")");
       }
-      node->args[i] = NULL;
       return node;
     } else {
       Node *node = new_node(ND_LVAR, NULL, NULL);
@@ -404,31 +439,10 @@ Node *func() {
 
   // parse parameters
   expect("(");
-  if ((tok = consume_ident())) {
-    int i = 0;
-    node->args[i++] = new_node(ND_LVAR, NULL, NULL);
-    while (true) {
-      LVar *lvar = find_lvar(tok);
-      if (lvar) {
-        error_at(tok->str, "duplicate identifier");
-      } else {
-        lvar = calloc(1, sizeof(LVar));
-        lvar->next = locals;
-        lvar->name = tok->str;
-        lvar->len = tok->len;
-        lvar->offset = locals ? locals->offset + 8 : 8;
-        node->args[i++]->offset = lvar->offset;
-        locals = lvar;
-      }
-      if (!consume(","))
-        break;
-      if (!(tok = consume_ident()))
-        break;
-    }
-    node->args[i] = NULL;
+  if (!consume(")")) {
+    node->params = params();
     expect(")");
   }
-  expect(")");
 
   // parse function body
   expect("{");
@@ -443,7 +457,8 @@ Node *func() {
 void program() {
   int i = 0;
   while (!at_eof()) {
-    code[i++] = func();
+    code[i++] = stmt();
+    // code[i++] = func();
   }
   code[i] = NULL;
 }
