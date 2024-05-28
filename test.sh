@@ -17,6 +17,8 @@ assert() {
   fi
 }
 
+assert 2 'main() { return 2; }'
+
 # exit status
 assert 0 '0;'
 assert 42 '42;'

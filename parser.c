@@ -212,7 +212,7 @@ Node *primary() {
   Token *tok = consume_ident();
   if (tok) {
     if (consume("(")) {
-      Node *node = new_node(ND_FUNC, NULL, NULL);
+      Node *node = new_node(ND_FNCALL, NULL, NULL);
 
       node->name = tok->str;
       node->len = tok->len;
@@ -389,10 +389,61 @@ Node *stmt() {
   return node;
 }
 
+Node *func() {
+  // clear previous local variables
+  locals = NULL;
+
+  // parse function definition
+  Token *tok = consume_ident();
+  if (!tok) {
+    error_at(token->str, "function definition expected");
+  }
+  Node *node = new_node(ND_FNDEF, NULL, NULL);
+  node->name = tok->str;
+  node->len = tok->len;
+
+  // parse parameters
+  expect("(");
+  if ((tok = consume_ident())) {
+    int i = 0;
+    node->args[i++] = new_node(ND_LVAR, NULL, NULL);
+    while (true) {
+      LVar *lvar = find_lvar(tok);
+      if (lvar) {
+        error_at(tok->str, "duplicate identifier");
+      } else {
+        lvar = calloc(1, sizeof(LVar));
+        lvar->next = locals;
+        lvar->name = tok->str;
+        lvar->len = tok->len;
+        lvar->offset = locals ? locals->offset + 8 : 8;
+        node->args[i++]->offset = lvar->offset;
+        locals = lvar;
+      }
+      if (!consume(","))
+        break;
+      if (!(tok = consume_ident()))
+        break;
+    }
+    node->args[i] = NULL;
+    expect(")");
+  }
+  expect(")");
+
+  // parse function body
+  expect("{");
+  int i = 0;
+  while (!consume("}")) {
+    node->block[i++] = stmt();
+  }
+  node->block[i] = NULL;
+  return node;
+}
+
 void program() {
   int i = 0;
   while (!at_eof()) {
-    code[i++] = stmt();
+    code[i++] = func();
   }
   code[i] = NULL;
 }

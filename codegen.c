@@ -35,7 +35,7 @@ void gen(Node *node) {
     printf("  mov rax, [rax]\n");
     printf("  push rax\n");
     return;
-  } else if (node->kind == ND_FUNC) {
+  } else if (node->kind == ND_FNCALL) {
 		// align the stack pointer to 16 bytes
     printf("  mov rax, rsp\n");
     printf("  mov rdi, 16\n");
