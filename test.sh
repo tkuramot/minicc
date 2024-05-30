@@ -26,8 +26,8 @@ assert() {
 assert 1 'main() { return one(); }'
 assert 2 'main() { return one() + 1; }'
 assert 3 'main() { return 1 + one() + 1; }' # 3
-assert 2 'main() { return 1 + 1 + one(); }' # 3
-assert 2 'main() { return one() + 1 + 1 }' # 3
+assert 3 'main() { return 1 + 1 + one(); }' # 3
+assert 3 'main() { return one() + 1 + 1; }' # 3
 assert 2 'main() { return one() + one(); }'
 
 # function call without return value

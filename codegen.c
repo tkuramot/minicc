@@ -40,12 +40,15 @@ void gen(Node *node) {
     return;
   } else if (node->kind == ND_FNCALL) {
     COMMENT("prepare for function call");
-    printf("  mov rax, rsp\n");
-    printf("  mov rdi, 16\n");
-    printf("  cqo\n");
-    printf("  idiv rdi\n");
-    printf("  sub rdi, rdx\n");
-    printf("  sub rsp, rdi\n\n");
+    printf("  push rbp\n");
+    printf("  mov rbp, rsp\n");
+    printf("  and rsp, -16\n");
+    // printf("  mov rax, rsp\n");
+    // printf("  mov rdi, 16\n");
+    // printf("  cqo\n");
+    // printf("  idiv rdi\n");
+    // printf("  sub rdi, rdx\n");
+    // printf("  sub rsp, rdi\n\n");
 
     /*
      * handle up to 6 arguments
@@ -58,6 +61,9 @@ void gen(Node *node) {
       arg = arg->next;
     }
     printf("  call %.*s\n", node->cont.function.len, node->cont.function.name);
+    COMMENT("restore the stack pointer and the base pointer");
+    printf("  mov rsp, rbp\n");
+    printf("  pop rbp\n\n");
     printf("  push rax\n\n");
     return;
   } else if (node->kind == ND_FNDEF) {
