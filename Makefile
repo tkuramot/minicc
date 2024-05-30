@@ -1,5 +1,5 @@
 NAME:=9cc
-CFLAGS:=-std=c11 -g -static -DCOMMENT
+CFLAGS:=-std=c11 -g -static -DWITH_COMMENT
 # CFLAGS:=-std=c11 -g -fsanitize=address
 SRCS:=$(wildcard *.c)
 OBJS:=$(SRCS:.c=.o)
