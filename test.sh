@@ -18,11 +18,12 @@ assert() {
 }
 
 # function definition
-# assert 2 'main() { a=one(); return a; }' # segv
-# assert 2 'main() { return 2; }'
-# assert 2 'fibo(n) { one_arg(n); if (n==0) return 0; if (n==1) return 1; return fibo(n-1) + fibo(n-2); } main() { return fibo(3); }'
+assert 21 'fibo(n) { one_arg(n); if (n==0) return 0; if (n==1) return 1; return fibo(n-1) + fibo(n-2); } main() { return fibo(8); }'
+assert 1 'one() { return 1; } main() { return one(); }'
+assert 8 'number(n) { return n; } main() { return number(8); }'
 
 # function call with return value
+assert 1 'main() { a=one(); return a; }'
 assert 1 'main() { return one(); }'
 assert 2 'main() { return one() + 1; }'
 assert 3 'main() { return 1 + one() + 1; }'
@@ -32,6 +33,7 @@ assert 2 'main() { return one() + one(); }'
 assert 3 'main() { a=one(); return a + one() + one(); }'
 assert 1 'main() { return internal_call(); }'
 assert 21 'main() { return fibonacci(8); }'
+assert 41 'main() { a=42; return return_n(a-1); }'
 
 # function call without return value
 assert 42 'main() { no_arg(); return 42; }'

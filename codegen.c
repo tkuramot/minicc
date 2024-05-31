@@ -39,28 +39,24 @@ void gen(Node *node) {
     printf("  push rax\n\n");
     return;
   } else if (node->kind == ND_FNCALL) {
-    COMMENT("prepare for function call");
-    printf("  push rbp\n");
-    printf("  mov rbp, rsp\n");
-    printf("  and rsp, -16\n");
-    // printf("  mov rax, rsp\n");
-    // printf("  mov rdi, 16\n");
-    // printf("  cqo\n");
-    // printf("  idiv rdi\n");
-    // printf("  sub rdi, rdx\n");
-    // printf("  sub rsp, rdi\n\n");
-
     /*
      * handle up to 6 arguments
      */
-    COMMENT("copy the arguments to the registers");
+    COMMENT("prepare for function call");
+    COMMENT("copy the arguments on the stack to the registers");
     Node *arg = node->cont.function.args;
     for (int i = 0; reg[i] && arg; ++i) {
       gen(arg);
       printf("  pop %s\n", reg[i]);
       arg = arg->next;
     }
+
+    COMMENT("align the stack pointer to 16 bytes");
+    printf("  push rbp\n");
+    printf("  mov rbp, rsp\n");
+    printf("  and rsp, -16\n");
     printf("  call %.*s\n", node->cont.function.len, node->cont.function.name);
+
     COMMENT("restore the stack pointer and the base pointer");
     printf("  mov rsp, rbp\n");
     printf("  pop rbp\n");
@@ -76,12 +72,16 @@ void gen(Node *node) {
     }
     printf("\n");
 
-    COMMENT("copy the arguments to the local variables");
-    int i = 0;
-    for (Node *param = node->cont.function.params; param; param = param->next) {
+    /*
+     * handle up to 6 parameters
+     */
+    COMMENT("copy the arguments in the registers to the local variables");
+    Node *param = node->cont.function.params;
+    for (int i = 0; reg[i] && param; ++i) {
       gen_lval(param);
       printf("  pop rax\n");
       printf("  mov [rax], %s\n", reg[i++]);
+      param = param->next;
     }
 
     COMMENT("function body");

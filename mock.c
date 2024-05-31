@@ -12,6 +12,8 @@ void six_arg(int a, int b, int c, int d, int e, int f) {
 
 int one() { return 1; }
 
+int return_n(int n) { return n; }
+
 int internal_call() { return one(); }
 
 int fibonacci(int n) {
