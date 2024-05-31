@@ -63,7 +63,7 @@ void gen(Node *node) {
     printf("  call %.*s\n", node->cont.function.len, node->cont.function.name);
     COMMENT("restore the stack pointer and the base pointer");
     printf("  mov rsp, rbp\n");
-    printf("  pop rbp\n\n");
+    printf("  pop rbp\n");
     printf("  push rax\n\n");
     return;
   } else if (node->kind == ND_FNDEF) {

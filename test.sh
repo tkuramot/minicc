@@ -25,10 +25,13 @@ assert() {
 # function call with return value
 assert 1 'main() { return one(); }'
 assert 2 'main() { return one() + 1; }'
-assert 3 'main() { return 1 + one() + 1; }' # 3
-assert 3 'main() { return 1 + 1 + one(); }' # 3
-assert 3 'main() { return one() + 1 + 1; }' # 3
+assert 3 'main() { return 1 + one() + 1; }'
+assert 3 'main() { return 1 + 1 + one(); }'
+assert 3 'main() { return one() + 1 + 1; }'
 assert 2 'main() { return one() + one(); }'
+assert 3 'main() { a=one(); return a + one() + one(); }'
+assert 1 'main() { return internal_call(); }'
+assert 21 'main() { return fibonacci(8); }'
 
 # function call without return value
 assert 42 'main() { no_arg(); return 42; }'
