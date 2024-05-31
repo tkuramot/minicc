@@ -11,6 +11,7 @@
 - iteration structure (while, for)
 - compound statements
 - function call with and without arguments
+- function definition
 
 ## syntax
 

@@ -19,7 +19,6 @@ assert() {
 
 # function definition
 assert 21 'fibo(n) { if (n==0) return 0; if (n==1) return 1; return fibo(n-1) + fibo(n-2); } main() { return fibo(8); }'
-exit 0
 assert 1 'one() { return 1; } main() { return one(); }'
 assert 8 'number(n) { return n; } main() { return number(8); }'
 
