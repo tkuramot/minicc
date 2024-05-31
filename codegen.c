@@ -51,7 +51,7 @@ void gen(Node *node) {
       arg = arg->next;
     }
 
-    COMMENT("align the stack pointer to 16 bytes");
+    COMMENT("align the stack pointer to 16 bytes just before function call");
     printf("  push rbp\n");
     printf("  mov rbp, rsp\n");
     printf("  and rsp, -16\n");
