@@ -22,8 +22,6 @@ assert 3 'main() { a=3; b=&a; return *b; }'
 assert 42 'main() { a=42; return *&a; }'
 assert 3 'main() { x=3; y=4; z=&y+8; return *z; }'
 
-exit 0
-
 # function definition
 assert 21 'fibo(n) { if (n==0) return 0; if (n==1) return 1; return fibo(n-1) + fibo(n-2); } main() { return fibo(8); }'
 assert 1 'one() { return 1; } main() { return one(); }'

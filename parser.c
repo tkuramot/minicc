@@ -40,21 +40,23 @@ bool ft_isalpha(char c) { return isalpha(c) || c == '_'; }
 
 bool ft_isalnum(char c) { return ft_isalpha(c) || isdigit(c); }
 
-bool consume(char *op) {
-  if (token->kind != TK_RESERVED || token->len != strlen(op) ||
-      memcmp(token->str, op, token->len) != 0) {
-    return false;
+Token *consume(TokenKind kind) {
+  if (token->kind != kind) {
+    return NULL;
   }
+  Token *tok = token;
   token = token->next;
-  return true;
+  return tok;
 }
 
-bool consume_kind(TokenKind kind) {
-  if (token->kind != kind) {
-    return false;
+Token *consume_op(char *op) {
+  if (token->kind != TK_RESERVED || token->len != strlen(op) ||
+      memcmp(token->str, op, token->len) != 0) {
+    return NULL;
   }
+  Token *tok = token;
   token = token->next;
-  return true;
+  return tok;
 }
 
 Token *consume_ident() {
@@ -106,6 +108,12 @@ Token *tokenize(char *p) {
   while (*p) {
     if (isspace(*p)) {
       p++;
+      continue;
+    }
+
+    if (strncmp(p, "int", 3) == 0 && !ft_isalnum(p[3])) {
+      cur = new_token(TK_TYPE, cur, p, 3);
+      p += 3;
       continue;
     }
 
@@ -202,7 +210,7 @@ Node *args() {
   do {
     cur->next = expr();
     cur = cur->next;
-  } while (consume(","));
+  } while (consume_op(","));
   return head.next;
 }
 
@@ -232,12 +240,12 @@ Node *params() {
       cur = cur->next;
       locals = lvar;
     }
-  } while (consume(","));
+  } while (consume_op(","));
   return head.next;
 }
 
 Node *primary() {
-  if (consume("(")) {
+  if (consume_op("(")) {
     Node *node = expr();
     expect(")");
     return node;
@@ -245,12 +253,12 @@ Node *primary() {
 
   Token *tok = consume_ident();
   if (tok) {
-    if (consume("(")) {
+    if (consume_op("(")) {
       Node *node = new_node(ND_FNCALL, NULL, NULL);
       node->cont.function.name = tok->str;
       node->cont.function.len = tok->len;
 
-      if (!consume(")")) {
+      if (!consume_op(")")) {
         node->cont.function.args = args();
         expect(")");
       }
@@ -278,18 +286,18 @@ Node *primary() {
 }
 
 Node *unary() {
-  if (consume("+")) {
+  if (consume_op("+")) {
     return primary();
   }
-  if (consume("-")) {
+  if (consume_op("-")) {
     return new_node(ND_SUB, new_node_num(0), primary());
   }
-  if (consume("&")) {
+  if (consume_op("&")) {
     Node *node = new_node(ND_ADDR, NULL, NULL);
     node->cont.unary.operand = unary();
     return node;
   }
-  if (consume("*")) {
+  if (consume_op("*")) {
     Node *node = new_node(ND_DEREF, NULL, NULL);
     node->cont.unary.operand = unary();
     return node;
@@ -301,9 +309,9 @@ Node *mul() {
   Node *node = unary();
 
   for (;;) {
-    if (consume("*")) {
+    if (consume_op("*")) {
       node = new_node(ND_MUL, node, unary());
-    } else if (consume("/")) {
+    } else if (consume_op("/")) {
       node = new_node(ND_DIV, node, unary());
     } else {
       return node;
@@ -315,9 +323,9 @@ Node *add() {
   Node *node = mul();
 
   for (;;) {
-    if (consume("+")) {
+    if (consume_op("+")) {
       node = new_node(ND_ADD, node, mul());
-    } else if (consume("-")) {
+    } else if (consume_op("-")) {
       node = new_node(ND_SUB, node, mul());
     } else {
       return node;
@@ -329,13 +337,13 @@ Node *relational() {
   Node *node = add();
 
   for (;;) {
-    if (consume("<="))
+    if (consume_op("<="))
       node = new_node(ND_LE, node, add());
-    else if (consume(">="))
+    else if (consume_op(">="))
       node = new_node(ND_LE, add(), node);
-    else if (consume("<"))
+    else if (consume_op("<"))
       node = new_node(ND_LT, node, add());
-    else if (consume(">"))
+    else if (consume_op(">"))
       node = new_node(ND_LT, add(), node);
     else
       return node;
@@ -346,9 +354,9 @@ Node *equality() {
   Node *node = relational();
 
   for (;;) {
-    if (consume("==")) {
+    if (consume_op("==")) {
       node = new_node(ND_EQ, node, relational());
-    } else if (consume("!=")) {
+    } else if (consume_op("!=")) {
       node = new_node(ND_NE, node, relational());
     } else {
       return node;
@@ -360,7 +368,7 @@ Node *assign() {
   Node *node = equality();
 
   for (;;) {
-    if (consume("=")) {
+    if (consume_op("=")) {
       node = new_node(ND_ASSIGN, node, assign());
     } else {
       return node;
@@ -372,55 +380,55 @@ Node *expr() { return assign(); }
 
 Node *stmt() {
   Node *node;
-  if (consume_kind(TK_IF)) {
+  if (consume(TK_IF)) {
     node = new_node(ND_IF, NULL, NULL);
 
     expect("(");
     node->cont.conditional.cond = expr();
     expect(")");
     node->cont.conditional.then = stmt();
-    if (consume_kind(TK_ELS)) {
+    if (consume(TK_ELS)) {
       node->cont.conditional.els = stmt();
     }
-  } else if (consume_kind(TK_ELS)) {
+  } else if (consume(TK_ELS)) {
     node = new_node(ND_ELS, NULL, NULL);
     node->cont.conditional.then = stmt();
-  } else if (consume_kind(TK_WHILE)) {
+  } else if (consume(TK_WHILE)) {
     node = new_node(ND_WHILE, NULL, NULL);
 
     expect("(");
     node->cont.loop.cond = expr();
     expect(")");
     node->cont.loop.then = stmt();
-  } else if (consume_kind(TK_FOR)) {
+  } else if (consume(TK_FOR)) {
     node = new_node(ND_FOR, NULL, NULL);
 
     expect("(");
-    if (!consume(";")) {
+    if (!consume_op(";")) {
       node->cont.loop.init = expr();
       expect(";");
     }
-    if (!consume(";")) {
+    if (!consume_op(";")) {
       node->cont.loop.cond = expr();
       expect(";");
     }
-    if (!consume(")")) {
+    if (!consume_op(")")) {
       node->cont.loop.update = expr();
       expect(")");
     }
     node->cont.loop.then = stmt();
-  } else if (consume("{")) {
+  } else if (consume_op("{")) {
     node = new_node(ND_BLOCK, NULL, NULL);
 
     Node head;
     head.next = NULL;
     Node *cur = &head;
-    while (!consume("}")) {
+    while (!consume_op("}")) {
       cur->next = stmt();
       cur = cur->next;
     }
     node->cont.block = head.next;
-  } else if (consume_kind(TK_RETURN)) {
+  } else if (consume(TK_RETURN)) {
     node = new_node(ND_RETURN, expr(), NULL);
     expect(";");
   } else {
@@ -445,7 +453,7 @@ Node *func() {
 
   // parse parameters
   expect("(");
-  if (!consume(")")) {
+  if (!consume_op(")")) {
     node->cont.function.params = params();
     expect(")");
   }
@@ -455,7 +463,7 @@ Node *func() {
   Node head;
   head.next = NULL;
   Node *cur = &head;
-  while (!consume("}")) {
+  while (!consume_op("}")) {
     cur->next = stmt();
     cur = cur->next;
   }
