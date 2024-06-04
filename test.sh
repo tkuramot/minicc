@@ -104,6 +104,7 @@ assert 0 'main() { 1<=0; }'
 assert 1 'main() { 1==1>=0; }'
 
 # unary operators
+assert 7 'main() { -3++10; }'
 assert 7 'main() { -3+10; }'
 assert 5 'main() { -3*5+20; }'
 
