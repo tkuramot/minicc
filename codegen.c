@@ -38,6 +38,17 @@ void gen(Node *node) {
     printf("  mov rax, [rax]\n");
     printf("  push rax\n\n");
     return;
+  } else if (node->kind == ND_ADDR) {
+    COMMENT("address");
+    gen_lval(node->cont.unary.operand);
+    return;
+  } else if (node->kind == ND_DEREF) {
+    COMMENT("dereference");
+    gen(node->cont.unary.operand);
+    printf("  pop rax\n");
+    printf("  mov rax, [rax]\n");
+    printf("  push rax\n");
+    return;
   } else if (node->kind == ND_FNCALL) {
     /*
      * handle up to 6 arguments

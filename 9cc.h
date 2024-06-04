@@ -35,6 +35,8 @@ typedef enum {
   ND_FNCALL,
   ND_FNDEF,
   ND_NUM,
+  ND_ADDR,
+  ND_DEREF,
   ND_IF,
   ND_ELS,
   ND_WHILE,
@@ -64,6 +66,9 @@ struct Token {
 };
 
 union NodeContent {
+  struct {
+    Node *operand;
+  } unary; // *, &
   struct {
     Node *lhs;
     Node *rhs;
