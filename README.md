@@ -30,7 +30,7 @@ equality   = relational ("==" relational | "!=" relational)*
 relational = add ("<" add | "<=" add | ">" add | ">=" add)*
 add        = mul ("+" mul | "-" mul)*
 mul        = unary ("*" unary | "/" unary)*
-unary      = ("+" | "-")? primary
+unary      = "+"? primary | "-"? primary | "*" unary | "&" unary
 primary    = num | ident ("(" args? ")")? | "(" expr ")"
 args       = expr ("," expr)*
 params     = ident ("," ident)*
