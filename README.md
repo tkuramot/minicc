@@ -12,6 +12,7 @@
 - compound statements
 - function call with and without arguments
 - function definition
+- address and dereference
 
 ## syntax
 
