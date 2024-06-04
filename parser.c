@@ -59,15 +59,6 @@ Token *consume_op(char *op) {
   return tok;
 }
 
-Token *consume_ident() {
-  if (token->kind != TK_IDENT) {
-    return NULL;
-  }
-  Token *tok = token;
-  token = token->next;
-  return tok;
-}
-
 void expect(char *op) {
   if (token->kind != TK_RESERVED || token->len != strlen(op) ||
       memcmp(token->str, op, token->len) != 0) {
@@ -222,7 +213,7 @@ Node *params() {
   int i = 0;
   Token *tok;
   do {
-    tok = consume_ident();
+    tok = consume(TK_IDENT);
     if (!tok)
       error_at(token->str, "parameter expected");
     LVar *lvar = find_lvar(tok);
@@ -251,7 +242,7 @@ Node *primary() {
     return node;
   }
 
-  Token *tok = consume_ident();
+  Token *tok = consume(TK_IDENT);
   if (tok) {
     if (consume_op("(")) {
       Node *node = new_node(ND_FNCALL, NULL, NULL);
@@ -443,7 +434,7 @@ Node *func() {
   locals = NULL;
 
   // parse function definition
-  Token *tok = consume_ident();
+  Token *tok = consume(TK_IDENT);
   if (!tok) {
     error_at(token->str, "function definition expected");
   }
