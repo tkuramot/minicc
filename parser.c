@@ -40,7 +40,7 @@ bool ft_isalpha(char c) { return isalpha(c) || c == '_'; }
 
 bool ft_isalnum(char c) { return ft_isalpha(c) || isdigit(c); }
 
-bool next_token_is(TokenKind kind) { return token->next->kind == kind; }
+bool next_token_is(TokenKind kind) { return token->kind == kind; }
 
 Token *consume(TokenKind kind) {
   if (token->kind != kind) {
