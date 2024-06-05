@@ -10,6 +10,11 @@
 #define MAX_CODE_LINE 100
 
 typedef enum {
+  VT_UNKNOWN,
+  VT_INT,
+} ValueType;
+
+typedef enum {
   TK_RESERVED,
   TK_TYPE,
   TK_IDENT,
@@ -56,6 +61,7 @@ struct LVar {
   char *name;
   int len;
   int offset;
+  ValueType type;
 };
 
 struct Token {

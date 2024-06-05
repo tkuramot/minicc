@@ -59,6 +59,14 @@ Token *consume_op(char *op) {
   return tok;
 }
 
+ValueType parse_type(Token *tok) {
+  if (tok->len == 3 && memcmp(tok->str, "int", 3) == 0) {
+    return VT_INT;
+  }
+  error_at(tok->str, "unknown type");
+  return VT_UNKNOWN;
+}
+
 void expect(char *op) {
   if (token->kind != TK_RESERVED || token->len != strlen(op) ||
       memcmp(token->str, op, token->len) != 0) {
@@ -213,9 +221,16 @@ Node *params() {
   int i = 0;
   Token *tok;
   do {
+    Token *tok = consume(TK_TYPE);
+    if (!tok) {
+      error_at(token->str, "type expected");
+    }
+    ValueType type = parse_type(tok);
+
     tok = consume(TK_IDENT);
-    if (!tok)
+    if (!tok) {
       error_at(token->str, "parameter expected");
+    }
     LVar *lvar = find_lvar(tok);
     if (lvar) {
       error_at(tok->str, "duplicate identifier");
@@ -225,6 +240,7 @@ Node *params() {
       lvar->name = tok->str;
       lvar->len = tok->len;
       lvar->offset = locals ? locals->offset + 8 : 8;
+      lvar->type = type;
 
       cur->next = new_node(ND_LVAR, NULL, NULL);
       cur->next->cont.offset = lvar->offset;
@@ -242,7 +258,31 @@ Node *primary() {
     return node;
   }
 
-  Token *tok = consume(TK_IDENT);
+  // parse variable declaration
+  Token *tok = consume(TK_TYPE);
+  if (tok) {
+    Node *node = new_node(ND_LVAR, NULL, NULL);
+    ValueType type = parse_type(tok);
+
+    tok = consume(TK_IDENT);
+    LVar *lvar = find_lvar(tok);
+    if (lvar) {
+      error_at(tok->str, "duplicate identifier");
+    } else {
+      lvar = calloc(1, sizeof(LVar));
+      lvar->next = locals;
+      lvar->name = tok->str;
+      lvar->len = tok->len;
+      lvar->offset = locals ? locals->offset + 8 : 8;
+      lvar->type = type;
+      node->cont.offset = lvar->offset;
+      locals = lvar;
+    }
+    return node;
+  }
+
+  // parse function call or variable reference
+  tok = consume(TK_IDENT);
   if (tok) {
     if (consume_op("(")) {
       Node *node = new_node(ND_FNCALL, NULL, NULL);
@@ -261,13 +301,7 @@ Node *primary() {
       if (lvar) {
         node->cont.offset = lvar->offset;
       } else {
-        lvar = calloc(1, sizeof(LVar));
-        lvar->next = locals;
-        lvar->name = tok->str;
-        lvar->len = tok->len;
-        lvar->offset = locals ? locals->offset + 8 : 8;
-        node->cont.offset = lvar->offset;
-        locals = lvar;
+        error_at(tok->str, "undefined identifier");
       }
       return node;
     }

@@ -32,9 +32,10 @@ relational = add ("<" add | "<=" add | ">" add | ">=" add)*
 add        = mul ("+" mul | "-" mul)*
 mul        = unary ("*" unary | "/" unary)*
 unary      = "+"? primary | "-"? primary | "*" unary | "&" unary
-primary    = num | ident ("(" args? ")")? | "(" expr ")"
+primary    = num | type? ident ("(" args? ")")? | "(" expr ")"
 args       = expr ("," expr)*
-params     = ident ("," ident)*
+params     = type ident ("," ident)*
+type       = int
 ```
 
 ## references
