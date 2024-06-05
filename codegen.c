@@ -17,7 +17,7 @@ void gen_lval(Node *node) {
    * push the rdi register to the stack
    */
   printf("  mov rax, rbp\n");
-  printf("  sub rax, %d\n", node->cont.offset);
+  printf("  sub rax, %d\n", node->cont.lvar.offset);
   printf("  push rax\n\n");
 }
 

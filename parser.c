@@ -40,6 +40,8 @@ bool ft_isalpha(char c) { return isalpha(c) || c == '_'; }
 
 bool ft_isalnum(char c) { return ft_isalpha(c) || isdigit(c); }
 
+bool next_token_is(TokenKind kind) { return token->next->kind == kind; }
+
 Token *consume(TokenKind kind) {
   if (token->kind != kind) {
     return NULL;
@@ -57,14 +59,6 @@ Token *consume_op(char *op) {
   Token *tok = token;
   token = token->next;
   return tok;
-}
-
-ValueType parse_type(Token *tok) {
-  if (tok->len == 3 && memcmp(tok->str, "int", 3) == 0) {
-    return VT_INT;
-  }
-  error_at(tok->str, "unknown type");
-  return VT_UNKNOWN;
 }
 
 void expect(char *op) {
@@ -200,6 +194,24 @@ Node *new_node_num(int val) {
   return node;
 }
 
+Type *type() {
+  Type *type = calloc(1, sizeof(Type));
+
+  Token *tok = consume(TK_TYPE);
+  if (!tok) {
+    error_at(token->str, "type expected");
+  }
+
+  if (memcmp(tok->str, "int", 3) == 0) {
+    type->kind = VT_INT;
+    type->size = 8;
+  } else {
+    error_at(tok->str, "unknown type");
+  }
+
+  return type;
+}
+
 Node *args() {
   Node head;
   head.next = NULL;
@@ -221,16 +233,12 @@ Node *params() {
   int i = 0;
   Token *tok;
   do {
-    Token *tok = consume(TK_TYPE);
-    if (!tok) {
-      error_at(token->str, "type expected");
-    }
-    ValueType type = parse_type(tok);
-
+    Type *typ = type();
     tok = consume(TK_IDENT);
     if (!tok) {
       error_at(token->str, "parameter expected");
     }
+
     LVar *lvar = find_lvar(tok);
     if (lvar) {
       error_at(tok->str, "duplicate identifier");
@@ -240,10 +248,10 @@ Node *params() {
       lvar->name = tok->str;
       lvar->len = tok->len;
       lvar->offset = locals ? locals->offset + 8 : 8;
-      lvar->type = type;
 
       cur->next = new_node(ND_LVAR, NULL, NULL);
-      cur->next->cont.offset = lvar->offset;
+      cur->next->cont.lvar.offset = lvar->offset;
+      cur->next->cont.lvar.type = typ;
       cur = cur->next;
       locals = lvar;
     }
@@ -259,12 +267,11 @@ Node *primary() {
   }
 
   // parse variable declaration
-  Token *tok = consume(TK_TYPE);
-  if (tok) {
+  if (next_token_is(TK_TYPE)) {
     Node *node = new_node(ND_LVAR, NULL, NULL);
-    ValueType type = parse_type(tok);
+    Type *typ = type();
 
-    tok = consume(TK_IDENT);
+    Token *tok = consume(TK_IDENT);
     LVar *lvar = find_lvar(tok);
     if (lvar) {
       error_at(tok->str, "duplicate identifier");
@@ -274,15 +281,15 @@ Node *primary() {
       lvar->name = tok->str;
       lvar->len = tok->len;
       lvar->offset = locals ? locals->offset + 8 : 8;
-      lvar->type = type;
-      node->cont.offset = lvar->offset;
+      node->cont.lvar.offset = lvar->offset;
+      node->cont.lvar.type = typ;
       locals = lvar;
     }
     return node;
   }
 
   // parse function call or variable reference
-  tok = consume(TK_IDENT);
+  Token *tok = consume(TK_IDENT);
   if (tok) {
     if (consume_op("(")) {
       Node *node = new_node(ND_FNCALL, NULL, NULL);
@@ -299,7 +306,7 @@ Node *primary() {
 
       LVar *lvar = find_lvar(tok);
       if (lvar) {
-        node->cont.offset = lvar->offset;
+        node->cont.lvar.offset = lvar->offset;
       } else {
         error_at(tok->str, "undefined identifier");
       }
@@ -464,15 +471,17 @@ Node *stmt() {
 }
 
 Node *func() {
-  // clear previous local variables
-  locals = NULL;
+  Node *node = new_node(ND_FNDEF, NULL, NULL);
+
+  locals = NULL; // clear previous local variables
 
   // parse function definition
+  Type *typ = type();
+  node->cont.function.return_type = typ;
   Token *tok = consume(TK_IDENT);
   if (!tok) {
     error_at(token->str, "function definition expected");
   }
-  Node *node = new_node(ND_FNDEF, NULL, NULL);
   node->cont.function.name = tok->str;
   node->cont.function.len = tok->len;
 

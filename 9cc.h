@@ -62,11 +62,10 @@ struct LVar {
   char *name;
   int len;
   int offset;
-  ValueType type;
 };
 
 struct Type {
-  ValueType type;
+  ValueType kind;
   int size;
 };
 
@@ -102,12 +101,16 @@ union NodeContent {
     Node *args;
     Node *params;
     Node *block;
+    Type *return_type;
     int stack_size;
     int len;
-  } function;  // function definition and call
+  } function; // function definition and call
+  struct {
+    Type *type;
+    int offset;
+  } lvar;      // local variable
   Node *block; // block
   int val;     // number
-  int offset;  // local variable
 };
 
 struct Node {

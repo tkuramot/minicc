@@ -18,7 +18,7 @@
 
 ```bash
 program    = func*
-func       = ident "(" params? ")" "{" stmt* "}"
+func       = type ident "(" params? ")" "{" stmt* "}"
 stmt       = expr ";"
             | "{" stmt* "}"
             | "if" "(" expr ")" stmt ("else" stmt)?
