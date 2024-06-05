@@ -247,7 +247,7 @@ Node *params() {
       lvar->next = locals;
       lvar->name = tok->str;
       lvar->len = tok->len;
-      lvar->offset = locals ? locals->offset + 8 : 8;
+      lvar->offset = locals ? locals->offset + typ->size : typ->size;
 
       cur->next = new_node(ND_LVAR, NULL, NULL);
       cur->next->cont.lvar.offset = lvar->offset;
@@ -280,7 +280,7 @@ Node *primary() {
       lvar->next = locals;
       lvar->name = tok->str;
       lvar->len = tok->len;
-      lvar->offset = locals ? locals->offset + 8 : 8;
+      lvar->offset = locals ? locals->offset + typ->size : typ->size;
       node->cont.lvar.offset = lvar->offset;
       node->cont.lvar.type = typ;
       locals = lvar;

@@ -13,6 +13,7 @@
 - function call with and without arguments
 - function definition
 - address and dereference
+- type (int)
 
 ## syntax
 
