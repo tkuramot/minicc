@@ -493,7 +493,7 @@ Node *func() {
     cur = cur->next;
   }
   node->cont.function.block = head.next;
-  node->cont.function.locals = locals;
+  node->cont.function.stack_size = locals ? locals->offset : 0;
   return node;
 }
 

@@ -52,6 +52,7 @@ typedef enum {
 } NodeKind;
 
 typedef struct LVar LVar;
+typedef struct Type Type;
 typedef struct Token Token;
 typedef union NodeContent NodeContent;
 typedef struct Node Node;
@@ -62,6 +63,11 @@ struct LVar {
   int len;
   int offset;
   ValueType type;
+};
+
+struct Type {
+  ValueType type;
+  int size;
 };
 
 struct Token {
@@ -93,10 +99,10 @@ union NodeContent {
   } loop; // while, for
   struct {
     char *name;
-    LVar *locals;
     Node *args;
     Node *params;
     Node *block;
+    int stack_size;
     int len;
   } function;  // function definition and call
   Node *block; // block

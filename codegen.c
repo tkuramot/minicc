@@ -78,9 +78,7 @@ void gen(Node *node) {
     COMMENT("prologue");
     printf("  push rbp\n");     // store the base pointer to the stack
     printf("  mov rbp, rsp\n"); // set the base pointer to the stack pointer
-    if (node->cont.function.locals) {
-      printf("  sub rsp, %d\n", node->cont.function.locals->offset);
-    }
+    printf("  sub rsp, %d\n", node->cont.function.stack_size);
     printf("\n");
 
     /*
