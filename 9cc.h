@@ -10,11 +10,6 @@
 #define MAX_CODE_LINE 100
 
 typedef enum {
-  VT_UNKNOWN,
-  VT_INT,
-} ValueType;
-
-typedef enum {
   TK_RESERVED,
   TK_TYPE,
   TK_IDENT,
@@ -65,7 +60,8 @@ struct LVar {
 };
 
 struct Type {
-  ValueType kind;
+  struct Type *ptr_to;
+  enum { INT, PTR } kind;
   int size;
 };
 

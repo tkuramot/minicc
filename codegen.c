@@ -6,6 +6,10 @@
 static const char *reg[] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9", NULL};
 
 void gen_lval(Node *node) {
+  if (node->kind == ND_DEREF) {
+    gen(node->cont.unary.operand);
+    return;
+  }
   if (node->kind != ND_LVAR) {
     error("left value is not a variable");
   }

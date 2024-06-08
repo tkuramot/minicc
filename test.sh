@@ -17,10 +17,13 @@ assert() {
   fi
 }
 
+# int and ptr type
+assert 3 'int main() { int x; int *y=&x; *y=3; return x; }'
+
 # unary operators; * and & operators
-assert 3 'int main() { int a=3; int b=&a; return *b; }'
+assert 3 'int main() { int a=3; int *b=&a; return *b; }'
 assert 42 'int main() { int a=42; return *&a; }'
-assert 3 'int main() { int x=3; int y=4; int z=&y+8; return *z; }'
+assert 3 'int main() { int x=3; int y=4; int *z=&y+8; return *z; }'
 
 # function definition
 assert 21 'int fibo(int n) { if (n==0) return 0; if (n==1) return 1; return fibo(n-1) + fibo(n-2); } int main() { return fibo(8); }'

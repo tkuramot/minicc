@@ -195,7 +195,7 @@ Node *new_node_num(int val) {
 }
 
 Type *type() {
-  Type *type = calloc(1, sizeof(Type));
+  Type *typ = calloc(1, sizeof(Type));
 
   Token *tok = consume(TK_TYPE);
   if (!tok) {
@@ -203,13 +203,21 @@ Type *type() {
   }
 
   if (memcmp(tok->str, "int", 3) == 0) {
-    type->kind = VT_INT;
-    type->size = 8;
+    typ->kind = INT;
+    typ->size = 8;
   } else {
     error_at(tok->str, "unknown type");
   }
 
-  return type;
+  while (consume_op("*")) {
+    Type *ptr = calloc(1, sizeof(Type));
+    ptr->kind = PTR;
+    ptr->size = 8;
+    ptr->ptr_to = typ;
+    typ = ptr;
+  }
+
+  return typ;
 }
 
 Node *args() {
