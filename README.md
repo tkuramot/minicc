@@ -13,7 +13,7 @@
 - function call with and without arguments
 - function definition
 - address and dereference
-- type (int)
+- type (int, pointer)
 
 ## syntax
 
@@ -33,10 +33,10 @@ relational = add ("<" add | "<=" add | ">" add | ">=" add)*
 add        = mul ("+" mul | "-" mul)*
 mul        = unary ("*" unary | "/" unary)*
 unary      = "+"? primary | "-"? primary | "*" unary | "&" unary
-primary    = num | type? ident ("(" args? ")")? | "(" expr ")"
+primary    = num | type? '*'* ident ("(" args? ")")? | "(" expr ")"
 args       = expr ("," expr)*
 params     = type ident ("," ident)*
-type       = int
+type       = int '*'*
 ```
 
 ## references
